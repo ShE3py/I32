@@ -130,6 +130,119 @@ ALTER SEQUENCE public.adresse_id_seq OWNED BY public.adresse.id;
 
 
 --
+-- Name: article-camera; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-camera" (
+    reference text NOT NULL,
+    "id-camera" text NOT NULL
+);
+
+
+ALTER TABLE public."article-camera" OWNER TO postgres;
+
+--
+-- Name: article-det-pross; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-det-pross" (
+    reference text NOT NULL,
+    "id-détpross" integer NOT NULL
+);
+
+
+ALTER TABLE public."article-det-pross" OWNER TO postgres;
+
+--
+-- Name: article-display; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-display" (
+    reference text NOT NULL,
+    "id-dispaly" integer NOT NULL
+);
+
+
+ALTER TABLE public."article-display" OWNER TO postgres;
+
+--
+-- Name: article-détails; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-détails" (
+    reference text NOT NULL,
+    "id-détails" integer NOT NULL
+);
+
+
+ALTER TABLE public."article-détails" OWNER TO postgres;
+
+--
+-- Name: article-memoire; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-memoire" (
+    reference text NOT NULL,
+    "id-mémoire" integer NOT NULL
+);
+
+
+ALTER TABLE public."article-memoire" OWNER TO postgres;
+
+--
+-- Name: article-résol-cam; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-résol-cam" (
+    reference text NOT NULL,
+    "id-résolcam" integer NOT NULL
+);
+
+
+ALTER TABLE public."article-résol-cam" OWNER TO postgres;
+
+--
+-- Name: article-son; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-son" (
+    reference text NOT NULL,
+    "id-son" integer NOT NULL
+);
+
+
+ALTER TABLE public."article-son" OWNER TO postgres;
+
+--
+-- Name: article-stockage; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."article-stockage" (
+    reference text NOT NULL,
+    "id-stockage" integer NOT NULL
+);
+
+
+ALTER TABLE public."article-stockage" OWNER TO postgres;
+
+--
+-- Name: camera; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.camera (
+    "id-camera" text NOT NULL,
+    "model objectif" text,
+    "marque objectif" text,
+    "inclus (objectif)" text,
+    "type d'appareil" text,
+    focale text,
+    "stabilisateur " text
+);
+
+
+ALTER TABLE public.camera OWNER TO postgres;
+
+--
 -- Name: categorie; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -155,6 +268,106 @@ CREATE TABLE public.commentaire (
 
 
 ALTER TABLE public.commentaire OWNER TO postgres;
+
+--
+-- Name: display; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.display (
+    "id-display" integer NOT NULL,
+    "résolution" text,
+    "type écran" text,
+    contrast text,
+    "taille écran" text,
+    "carte graphique" text
+);
+
+
+ALTER TABLE public.display OWNER TO postgres;
+
+--
+-- Name: détails; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."détails" (
+    "id-détails" integer NOT NULL,
+    poids text,
+    couleur text,
+    "systéme d'exploitation" text
+);
+
+
+ALTER TABLE public."détails" OWNER TO postgres;
+
+--
+-- Name: détails processeur; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."détails processeur" (
+    "id-détpross" integer NOT NULL,
+    vitesse text,
+    marque text,
+    processeur text
+);
+
+
+ALTER TABLE public."détails processeur" OWNER TO postgres;
+
+--
+-- Name: memoire; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.memoire (
+    "id-mémoire" integer NOT NULL,
+    "taille bigit" text,
+    "type mémoire" text,
+    "nbre barettes" integer
+);
+
+
+ALTER TABLE public.memoire OWNER TO postgres;
+
+--
+-- Name: résolution camera; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."résolution camera" (
+    "id-résolcam" integer NOT NULL,
+    megapixels text
+);
+
+
+ALTER TABLE public."résolution camera" OWNER TO postgres;
+
+--
+-- Name: son; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.son (
+    "id-son" integer NOT NULL,
+    bluetooth text,
+    "réducteur bruit" text,
+    "connectivité" text,
+    microphone text,
+    "sans fil" text
+);
+
+
+ALTER TABLE public.son OWNER TO postgres;
+
+--
+-- Name: stockage; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.stockage (
+    "id-stockage" integer NOT NULL,
+    "capacité" text,
+    type text,
+    stockage text
+);
+
+
+ALTER TABLE public.stockage OWNER TO postgres;
 
 --
 -- Name: utilisateur; Type: TABLE; Schema: public; Owner: postgres
@@ -233,8 +446,8 @@ COPY public.achat (acheteur, article) FROM stdin;
 --
 
 COPY public.adresse (id, pays, code_postal, rue, numero, complement) FROM stdin;
-1	France	83130	Rue du Général de Gaulle	1b	\N
-2	France	68790	Rue de l'église	17	\N
+1	France	83130	1er BIMP	657	Faron
+2	France	83130	François	8	
 \.
 
 
@@ -243,7 +456,78 @@ COPY public.adresse (id, pays, code_postal, rue, numero, complement) FROM stdin;
 --
 
 COPY public.article (reference, categorie, vendeur, prix, description, marque, serie, modele) FROM stdin;
-abc-123	0	2	100	Un superbe téléphone	Apple	iPhone 8	iPhone 8
+\.
+
+
+--
+-- Data for Name: article-camera; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-camera" (reference, "id-camera") FROM stdin;
+\.
+
+
+--
+-- Data for Name: article-det-pross; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-det-pross" (reference, "id-détpross") FROM stdin;
+\.
+
+
+--
+-- Data for Name: article-display; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-display" (reference, "id-dispaly") FROM stdin;
+\.
+
+
+--
+-- Data for Name: article-détails; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-détails" (reference, "id-détails") FROM stdin;
+\.
+
+
+--
+-- Data for Name: article-memoire; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-memoire" (reference, "id-mémoire") FROM stdin;
+\.
+
+
+--
+-- Data for Name: article-résol-cam; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-résol-cam" (reference, "id-résolcam") FROM stdin;
+\.
+
+
+--
+-- Data for Name: article-son; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-son" (reference, "id-son") FROM stdin;
+\.
+
+
+--
+-- Data for Name: article-stockage; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."article-stockage" (reference, "id-stockage") FROM stdin;
+\.
+
+
+--
+-- Data for Name: camera; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.camera ("id-camera", "model objectif", "marque objectif", "inclus (objectif)", "type d'appareil", focale, "stabilisateur ") FROM stdin;
 \.
 
 
@@ -252,11 +536,11 @@ abc-123	0	2	100	Un superbe téléphone	Apple	iPhone 8	iPhone 8
 --
 
 COPY public.categorie (id, nom) FROM stdin;
-0	smartphone
-1	ordinateur
-2	tablette
-3	audio
-4	caméra
+1	Smartphones
+2	PC
+3	Tablettes
+4	Audio
+5	Camera
 \.
 
 
@@ -269,12 +553,69 @@ COPY public.commentaire (commentateur, article, note, commentaire) FROM stdin;
 
 
 --
+-- Data for Name: display; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.display ("id-display", "résolution", "type écran", contrast, "taille écran", "carte graphique") FROM stdin;
+\.
+
+
+--
+-- Data for Name: détails; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."détails" ("id-détails", poids, couleur, "systéme d'exploitation") FROM stdin;
+\.
+
+
+--
+-- Data for Name: détails processeur; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."détails processeur" ("id-détpross", vitesse, marque, processeur) FROM stdin;
+\.
+
+
+--
+-- Data for Name: memoire; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.memoire ("id-mémoire", "taille bigit", "type mémoire", "nbre barettes") FROM stdin;
+\.
+
+
+--
+-- Data for Name: résolution camera; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."résolution camera" ("id-résolcam", megapixels) FROM stdin;
+\.
+
+
+--
+-- Data for Name: son; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.son ("id-son", bluetooth, "réducteur bruit", "connectivité", microphone, "sans fil") FROM stdin;
+\.
+
+
+--
+-- Data for Name: stockage; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.stockage ("id-stockage", "capacité", type, stockage) FROM stdin;
+\.
+
+
+--
 -- Data for Name: utilisateur; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.utilisateur (id, nom, prenom, mail, tel, adresse) FROM stdin;
-1	Bang	Patrick	patrick@bang.fr	+41 5 24 24 53 82	1
-2	Olufsen	Gérard	gérard@gouv.fr	78 24 72	2
+1	HIBA	Hedil	hibahedil8@gmail.com	767836187	1
+2	ALLAOUI	Mounir	mounirallaoui25@gmail.com	11111111	1
+3	MARCHAL	Jonas	marchaljonas4@hotmail.com	22222222	2
 \.
 
 
@@ -317,6 +658,70 @@ ALTER TABLE ONLY public.adresse
 
 
 --
+-- Name: article-camera article-camera_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-camera"
+    ADD CONSTRAINT "article-camera_pkey" PRIMARY KEY (reference, "id-camera");
+
+
+--
+-- Name: article-det-pross article-det-pross_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-det-pross"
+    ADD CONSTRAINT "article-det-pross_pkey" PRIMARY KEY (reference, "id-détpross");
+
+
+--
+-- Name: article-display article-display_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-display"
+    ADD CONSTRAINT "article-display_pkey" PRIMARY KEY (reference, "id-dispaly");
+
+
+--
+-- Name: article-détails article-détails_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-détails"
+    ADD CONSTRAINT "article-détails_pkey" PRIMARY KEY (reference, "id-détails");
+
+
+--
+-- Name: article-memoire article-memoire_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-memoire"
+    ADD CONSTRAINT "article-memoire_pkey" PRIMARY KEY ("id-mémoire", reference);
+
+
+--
+-- Name: article-résol-cam article-résol-cam_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-résol-cam"
+    ADD CONSTRAINT "article-résol-cam_pkey" PRIMARY KEY (reference, "id-résolcam");
+
+
+--
+-- Name: article-son article-son_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-son"
+    ADD CONSTRAINT "article-son_pkey" PRIMARY KEY (reference, "id-son");
+
+
+--
+-- Name: article-stockage article-stockage_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-stockage"
+    ADD CONSTRAINT "article-stockage_pkey" PRIMARY KEY (reference, "id-stockage");
+
+
+--
 -- Name: article article_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -325,11 +730,75 @@ ALTER TABLE ONLY public.article
 
 
 --
+-- Name: camera camera_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.camera
+    ADD CONSTRAINT camera_pkey PRIMARY KEY ("id-camera");
+
+
+--
 -- Name: categorie categorie_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.categorie
     ADD CONSTRAINT categorie_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: display display_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.display
+    ADD CONSTRAINT display_pkey PRIMARY KEY ("id-display");
+
+
+--
+-- Name: détails processeur détails processeur_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."détails processeur"
+    ADD CONSTRAINT "détails processeur_pkey" PRIMARY KEY ("id-détpross");
+
+
+--
+-- Name: détails détails_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."détails"
+    ADD CONSTRAINT "détails_pkey" PRIMARY KEY ("id-détails");
+
+
+--
+-- Name: memoire memoire_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.memoire
+    ADD CONSTRAINT memoire_pkey PRIMARY KEY ("id-mémoire");
+
+
+--
+-- Name: résolution camera résolution camera_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."résolution camera"
+    ADD CONSTRAINT "résolution camera_pkey" PRIMARY KEY ("id-résolcam");
+
+
+--
+-- Name: son son_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.son
+    ADD CONSTRAINT son_pkey PRIMARY KEY ("id-son");
+
+
+--
+-- Name: stockage stockage_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.stockage
+    ADD CONSTRAINT stockage_pkey PRIMARY KEY ("id-stockage");
 
 
 --
@@ -394,6 +863,134 @@ ALTER TABLE ONLY public.commentaire
 
 ALTER TABLE ONLY public.commentaire
     ADD CONSTRAINT commentaire_commentateur_fkey FOREIGN KEY (commentateur) REFERENCES public.utilisateur(id);
+
+
+--
+-- Name: article-camera id-camera; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-camera"
+    ADD CONSTRAINT "id-camera" FOREIGN KEY ("id-camera") REFERENCES public.camera("id-camera");
+
+
+--
+-- Name: article-display id-display; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-display"
+    ADD CONSTRAINT "id-display" FOREIGN KEY ("id-dispaly") REFERENCES public.display("id-display");
+
+
+--
+-- Name: article-détails id-détails; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-détails"
+    ADD CONSTRAINT "id-détails" FOREIGN KEY ("id-détails") REFERENCES public."détails"("id-détails");
+
+
+--
+-- Name: article-det-pross id-détpross; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-det-pross"
+    ADD CONSTRAINT "id-détpross" FOREIGN KEY ("id-détpross") REFERENCES public."détails processeur"("id-détpross");
+
+
+--
+-- Name: article-memoire id-mémoire; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-memoire"
+    ADD CONSTRAINT "id-mémoire" FOREIGN KEY ("id-mémoire") REFERENCES public.memoire("id-mémoire");
+
+
+--
+-- Name: article-résol-cam id-résolcam; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-résol-cam"
+    ADD CONSTRAINT "id-résolcam" FOREIGN KEY ("id-résolcam") REFERENCES public."résolution camera"("id-résolcam");
+
+
+--
+-- Name: article-son id-son; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-son"
+    ADD CONSTRAINT "id-son" FOREIGN KEY ("id-son") REFERENCES public.son("id-son");
+
+
+--
+-- Name: article-stockage id-stockage; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-stockage"
+    ADD CONSTRAINT "id-stockage" FOREIGN KEY ("id-stockage") REFERENCES public.stockage("id-stockage");
+
+
+--
+-- Name: article-stockage reference; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-stockage"
+    ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
+-- Name: article-display reference; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-display"
+    ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
+-- Name: article-memoire reference; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-memoire"
+    ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
+-- Name: article-résol-cam reference; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-résol-cam"
+    ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
+-- Name: article-détails reference; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-détails"
+    ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
+-- Name: article-det-pross reference; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-det-pross"
+    ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
+-- Name: article-son reference; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-son"
+    ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
+-- Name: article-camera refrence; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."article-camera"
+    ADD CONSTRAINT refrence FOREIGN KEY (reference) REFERENCES public.article(reference);
 
 
 --
