@@ -8,7 +8,7 @@ import psycopg2 as sql
 HOSTNAME = 'localhost'
 USERNAME = 'postgres'
 PASSWORD = '1234'
-DATABASE = 'postgres'
+DATABASE = 'BD'
 
 # Webserver constants
 PORT = 80
@@ -40,15 +40,11 @@ class Handler(SimpleHTTPRequestHandler):
             cursor.execute("SELECT * FROM recherche(%s)", ('%' + search_input + '%',))
 
             for record in cursor:
-                text += "Ref: {}<br />" \
-                        "Cat: {}<br />" \
-                        "Vendeur: {}<br />" \
-                        "Prix: {}<br />" \
-                        "Description: {}<br />" \
-                        "Marque: {}<br />" \
-                        "Série: {}<br />" \
-                        "Modèle: {}<br /><br />" \
-                    .format(record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7])
+                text += "Modèle: {}<br />" \
+                        "Catégorie: {}<br />" \
+                        "Vendeur: {} {}<br />" \
+                        "Prix: {}€<br />" \
+                    .format(record[0], record[1], record[3], record[4], record[2])
 
         text_bytes = text.encode()
 
