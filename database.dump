@@ -480,8 +480,11 @@ COPY public.achat (acheteur, article) FROM stdin;
 --
 
 COPY public.adresse (id, pays, code_postal, rue, numero, complement) FROM stdin;
-1	France	83130	1er BIMP	657	Faron
-2	France	83130	François	8	
+3	France	57050	rue St Ferréol	144b	\N
+4	France	88630	rue de la Basilique	2	\N
+5	France	91600	rue du Président Roosevelt	127	App. 7
+1	France	93390	rue de Strasbourg	46	\N
+2	France	21000	rue des lieutenants Thomazo	109	\N
 \.
 
 
@@ -490,7 +493,16 @@ COPY public.adresse (id, pays, code_postal, rue, numero, complement) FROM stdin;
 --
 
 COPY public.article (reference, categorie, vendeur, prix, description, marque, serie, modele) FROM stdin;
-1	1	3	500	bon plan	iPhone	iPhone13	iPhone13
+abricot	1	1	500	Un iPhone 13.	Apple	iPhone	iPhone 13
+banane	1	2	620	iPhone 13, encore emballé.	Apple	iPhone	iPhone 13
+courgette	1	2	15	Téléphone résistant aux chocs	Nokia	Nokia 105	Nokia 105
+datte	2	3	4200	Écran 27 pouces, 8 coeurs, Intel Xeon W (3.2 GHz), Radeon Pro Vega 56, 1 To SDD	Apple	iMac	iMac Pro
+érable	2	4	260	Beau comme un dindon sorti du four.	Lenovo	Lenovo	Lenovo L540
+figue	3	9	700	Prix de Noël !	Apple	iPad	iPad Pro
+goyave	4	5	830	Couleur: noyer	Focal	Aria	Aria 936
+haricot	4	6	11490	\N	Klipsch	Klipschorn	Klipschorn AK6
+icaque	4	1	90	Haut-parleurs 5.1	Logitech	Logitech Z607	Logitech Z607
+jamalac	5	4	400	24.1 mégapixels	Canon	Canon EOS	Canon EOS 2000D
 \.
 
 
@@ -571,11 +583,11 @@ COPY public.camera ("id-camera", "model objectif", "marque objectif", "inclus (o
 --
 
 COPY public.categorie (id, nom) FROM stdin;
-1	Smartphones
 2	PC
-3	Tablettes
 4	Audio
-5	Camera
+3	Tablette
+5	Caméra
+1	Smartphone
 \.
 
 
@@ -648,9 +660,15 @@ COPY public.stockage ("id-stockage", "capacité", type, stockage) FROM stdin;
 --
 
 COPY public.utilisateur (id, nom, prenom, mail, tel, adresse) FROM stdin;
-1	HIBA	Hedil	hibahedil8@gmail.com	767836187	1
-2	ALLAOUI	Mounir	mounirallaoui25@gmail.com	11111111	1
-3	MARCHAL	Jonas	marchaljonas4@hotmail.com	22222222	2
+3	Ferrau	Patrice	patate482@yahoo.fr	01.11.92.28	1
+2	Blanchefle	Robitaille	banchefle-robitaille@gmail.com	03 36 16 24	2
+1	Ferrau	Huppé	ferrau.huppe@yahoo.fr	01.11.92.28	1
+4	Gradasso	Bilodeau	gradasso@google.com	+33 3 35 61 28	3
+5	d'Arc	Jeanne	jeannedarc@vosges.fr	0329069586	4
+6	Romée	Isabelle	isabelleromee@vosges.fr	0329069586	4
+7	d'Arc	Jacques	jacquesdarc@vosges.fr	03 29 06 95 86	4
+8	d'Arc	Catherine	catherine@vosges.fr	0329 0695 86	4
+9	de Chateaub	Royce	royce@dechateaub.co.uk	014932645	5
 \.
 
 
