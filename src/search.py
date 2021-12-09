@@ -1,3 +1,6 @@
+from http import HTTPStatus
+from typing import Union
+
 from bs4 import BeautifulSoup
 
 import database
@@ -16,8 +19,11 @@ def init():
         search_item_card_in_html = f.read()
 
 
-def do_search(query_vars: dict[str, list[str]]) -> str:
-    search_input = query_vars['what'][0]
+def do_search(query_vars: dict[str, str]) -> Union[str, tuple]:
+    if 'what' not in query_vars:
+        return HTTPStatus.BAD_REQUEST, None, "The query string isn't valid"
+
+    search_input = query_vars['what']
 
     soup = BeautifulSoup(search_in_html, features="html.parser")
 

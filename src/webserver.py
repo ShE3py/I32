@@ -2,11 +2,12 @@ import logging
 import urllib.parse
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-from typing import Callable
+from typing import Callable, Union
 
 import sys
 
 import search
+from register import do_register
 from search import do_search
 
 # Webserver constants
@@ -21,7 +22,7 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 <!DOCTYPE HTML>
 <html lang="fr">
     <head>
-        <title>Error response</title>
+        <title>Back Market &mdash; Erreur %(code)d</title>
     </head>
     <body style="margin: 1em;">
         <h2>Error %(code)d: %(message)s</h1>
@@ -43,6 +44,10 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
         try:
             if self.path.startswith("/search.html"):
                 self.do_dynamic("/search.html", do_search)
+
+            elif self.path.startswith("/do_register.html"):
+                self.do_dynamic("/do_register.html", do_register)
+
             else:
                 super().do_GET()
 
@@ -52,15 +57,33 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 
         return
 
-    def do_dynamic(self, path: str, f: Callable[[dict[str, list[str]]], str]):
+    def do_dynamic(self, path: str, f: Callable[[dict[str, str]], Union[str, tuple]]):
         query_string = self.path[len(path) + len('?'):]
 
         if query_string:
-            qs_vars = urllib.parse.parse_qs(query_string, keep_blank_values=True, strict_parsing=True, errors='strict')
+            _qs_vars = urllib.parse.parse_qs(query_string, keep_blank_values=True, strict_parsing=True, errors='strict')
+            qs_vars = dict()
+
+            for k, v in _qs_vars.items():
+                l = len(v)
+
+                if l == 0:
+                    continue
+
+                if l != 1:
+                    self.send_error(HTTPStatus.BAD_REQUEST, None, "Duplicated paramter `{}`".format(k))
+                    return
+
+                qs_vars[k] = v[0]
         else:
             qs_vars = dict()
-        
-        content_bytes = f(qs_vars).encode()
+
+        result = f(qs_vars)
+        if type(result) is tuple:
+            self.send_error(result[0], result[1], result[2])
+            return
+
+        content_bytes = result.encode()
 
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "text/html; charset=utf-8")
