@@ -17,7 +17,7 @@ def init():
 
 
 def do_search(query_vars: dict[str, list[str]]) -> str:
-    search_input = query_vars['s'][0]
+    search_input = query_vars['what'][0]
 
     soup = BeautifulSoup(search_in_html, features="html.parser")
 
@@ -26,7 +26,7 @@ def do_search(query_vars: dict[str, list[str]]) -> str:
         cursor.execute("SELECT * FROM recherche(%s)", ('%' + search_input + '%',))
 
         for record in cursor:
-            inner_html += search_item_card_in_html.format(model=record[0], price=record[2], seller_name=record[3], seller_surname=record[4])
+            inner_html += search_item_card_in_html.format(model=record[0], categorie=record[1], price=record[2], seller_name=record[3], seller_surname=record[4])
 
     if not inner_html:
         inner_html += "<h3>Aucun résultat.</h3>"
