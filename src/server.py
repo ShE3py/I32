@@ -8,7 +8,7 @@ import psycopg2 as sql
 HOSTNAME = 'localhost'
 USERNAME = 'postgres'
 PASSWORD = '1234'
-DATABASE = 'BD'
+DATABASE = 'postgres'
 
 # Webserver constants
 PORT = 80
