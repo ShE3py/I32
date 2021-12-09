@@ -1,32 +1,27 @@
 import urllib.parse
 from http import HTTPStatus
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-import psycopg2 as sql
-
-# Database authentication constants
-HOSTNAME = 'localhost'
-USERNAME = 'postgres'
-PASSWORD = '1234'
-DATABASE = 'postgres'
+import database
 
 # Webserver constants
 PORT = 80
 SERVER_ADDRESS = ("127.0.0.1", PORT)
 
-# Global mutable variables
-KEEP_RUNNING = True
 
-# Database connection
-sqlConnection = sql.connect(host=HOSTNAME, user=USERNAME, password=PASSWORD, dbname=DATABASE)
-
-
-# Webserver creation
-class Handler(SimpleHTTPRequestHandler):
+# An object that supply the webpages requested by an browser
+class WebpageSupplier(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory="website/", **kwargs)
 
+    # Serve a GET request.
     def do_GET(self):
+        # If the requested page is a dynamic one,
+        # => generate it
+        #
+        # Else,
+        # => serve the .html file on disk
+
         if self.path.startswith("/search.html"):
             self.do_search()
         else:
@@ -36,7 +31,7 @@ class Handler(SimpleHTTPRequestHandler):
         search_input = urllib.parse.unquote(self.path[len("/search.html?s="):].replace('+', ' '))
 
         text = ""
-        with sqlConnection.cursor() as cursor:
+        with database.conn.cursor() as cursor:
             cursor.execute("SELECT * FROM recherche(%s)", ('%' + search_input + '%',))
 
             for record in cursor:
@@ -56,13 +51,11 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(text_bytes)
 
 
-handler = Handler
-webServer = HTTPServer(SERVER_ADDRESS, handler)
+# The webserver instance
+inst: HTTPServer
 
-print("Webserver started on port", PORT)
 
-while KEEP_RUNNING:
-    webServer.handle_request()
+def init():
+    global inst
 
-webServer.server_close()
-sqlConnection.close()
+    inst = HTTPServer(SERVER_ADDRESS, WebpageSupplier)
