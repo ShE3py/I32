@@ -1,8 +1,11 @@
 import urllib.parse
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, HTTPServer
+from typing import Callable
 
-import database
+import sys
+
+from search import do_search
 
 # Webserver constants
 PORT = 80
@@ -23,32 +26,27 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
         # => serve the .html file on disk
 
         if self.path.startswith("/search.html"):
-            self.do_search()
+            self.do_dynamic("/search.html", do_search)
         else:
             super().do_GET()
 
-    def do_search(self):
-        search_input = urllib.parse.unquote(self.path[len("/search.html?s="):].replace('+', ' '))
-
-        text = ""
-        with database.conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM recherche(%s)", ('%' + search_input + '%',))
-
-            for record in cursor:
-                text += "Modèle: {}<br />" \
-                        "Catégorie: {}<br />" \
-                        "Vendeur: {} {}<br />" \
-                        "Prix: {}€<br />" \
-                    .format(record[0], record[1], record[3], record[4], record[2])
-
-        text_bytes = text.encode()
+    def do_dynamic(self, path: str, f: Callable[[dict[str, list[str]]], str]):
+        query_string = self.path[len(path) + len('?'):]
+        qs_vars = urllib.parse.parse_qs(query_string, keep_blank_values=True, strict_parsing=True, errors='strict')
+        content_bytes = f(qs_vars).encode()
 
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(text_bytes)))
+        self.send_header("Content-Length", len(content_bytes))
         self.end_headers()
 
-        self.wfile.write(text_bytes)
+        self.wfile.write(content_bytes)
+
+    def log_request(self, code='-', size='-'):
+        pass  # don't spam me with success messages, aho! ૮₍ ˃ ⤙ ˂ ₎ა
+
+    def log_message(self, format, *args):
+        print("[src/webserver.py]: %s" % (format % args), file=sys.stderr)
 
 
 # The webserver instance
