@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Union
+from http.server import SimpleHTTPRequestHandler
+from typing import Optional
 
 from bs4 import BeautifulSoup
 
@@ -19,17 +20,24 @@ def init():
         search_item_card_in_html = f.read()
 
 
-def do_search(query_vars: dict[str, str]) -> Union[str, tuple]:
+def do_search(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[str]:
     if 'what' not in query_vars:
-        return HTTPStatus.BAD_REQUEST, None, "The query string isn't valid"
+        rqw.send_error(HTTPStatus.BAD_REQUEST, None, "The query string isn't valid")
 
-    search_input = query_vars['what']
+        return None
+
+    search_input = query_vars['what'].strip()
+
+    if 'categorie' in query_vars:
+        categorie = int(query_vars['categorie'])
+    else:
+        categorie = -1
 
     soup = BeautifulSoup(search_in_html, features="html.parser")
 
     inner_html = ""
     with database.conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM recherche(%s)", ('%' + search_input + '%',))
+        cursor.execute("SELECT * FROM recherche(%s, %s)", ('%' + search_input + '%', categorie))
 
         for record in cursor:
             inner_html += search_item_card_in_html.format(model=record[0], categorie=record[1], price=record[2], seller_name=record[3], seller_surname=record[4])

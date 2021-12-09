@@ -2,12 +2,15 @@ import logging
 import urllib.parse
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-from typing import Callable, Union
+from typing import Callable, Optional
 
 import sys
 
+import profile
 import search
-from register import do_register
+from login import do_login
+from profile import show_profile
+from register import do_register, do_user_update
 from search import do_search
 
 # Webserver constants
@@ -48,6 +51,15 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
             elif self.path.startswith("/do_register.html"):
                 self.do_dynamic("/do_register.html", do_register)
 
+            elif self.path.startswith("/do_login.html"):
+                self.do_dynamic("/do_login.html", do_login)
+
+            elif self.path.startswith("/profile.html"):
+                self.do_dynamic("/profile.html", show_profile)
+
+            elif self.path.startswith("/do_update.html"):
+                self.do_dynamic("/do_update.html", do_user_update)
+
             else:
                 super().do_GET()
 
@@ -57,7 +69,7 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 
         return
 
-    def do_dynamic(self, path: str, f: Callable[[dict[str, str]], Union[str, tuple]]):
+    def do_dynamic(self, path: str, f: Callable[[dict[str, str], SimpleHTTPRequestHandler], Optional[str]]):
         query_string = self.path[len(path) + len('?'):]
 
         if query_string:
@@ -78,9 +90,8 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
         else:
             qs_vars = dict()
 
-        result = f(qs_vars)
-        if type(result) is tuple:
-            self.send_error(result[0], result[1], result[2])
+        result = f(qs_vars, self)
+        if result is None:
             return
 
         content_bytes = result.encode()
@@ -108,3 +119,4 @@ def init():
 
     inst = HTTPServer(SERVER_ADDRESS, WebpageSupplier)
     search.init()
+    profile.init()
