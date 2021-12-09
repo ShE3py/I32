@@ -16,36 +16,83 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-DROP DATABASE postgres;
---
--- Name: postgres; Type: DATABASE; Schema: -; Owner: postgres
---
-
-CREATE DATABASE postgres WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'English_United States.1252';
-
-
-ALTER DATABASE postgres OWNER TO postgres;
-
-\connect postgres
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- Name: DATABASE postgres; Type: COMMENT; Schema: -; Owner: postgres
---
-
-COMMENT ON DATABASE postgres IS 'default administrative connection database';
-
-
+ALTER TABLE IF EXISTS ONLY public.vente DROP CONSTRAINT IF EXISTS vente_vendeur_fkey;
+ALTER TABLE IF EXISTS ONLY public.vente DROP CONSTRAINT IF EXISTS vente_article_fkey;
+ALTER TABLE IF EXISTS ONLY public.utilisateur DROP CONSTRAINT IF EXISTS utilisateur_adresse_fkey;
+ALTER TABLE IF EXISTS ONLY public."article-camera" DROP CONSTRAINT IF EXISTS refrence;
+ALTER TABLE IF EXISTS ONLY public."article-son" DROP CONSTRAINT IF EXISTS reference;
+ALTER TABLE IF EXISTS ONLY public."article-det-pross" DROP CONSTRAINT IF EXISTS reference;
+ALTER TABLE IF EXISTS ONLY public."article-détails" DROP CONSTRAINT IF EXISTS reference;
+ALTER TABLE IF EXISTS ONLY public."article-résol-cam" DROP CONSTRAINT IF EXISTS reference;
+ALTER TABLE IF EXISTS ONLY public."article-memoire" DROP CONSTRAINT IF EXISTS reference;
+ALTER TABLE IF EXISTS ONLY public."article-display" DROP CONSTRAINT IF EXISTS reference;
+ALTER TABLE IF EXISTS ONLY public."article-stockage" DROP CONSTRAINT IF EXISTS reference;
+ALTER TABLE IF EXISTS ONLY public."article-stockage" DROP CONSTRAINT IF EXISTS "id-stockage";
+ALTER TABLE IF EXISTS ONLY public."article-son" DROP CONSTRAINT IF EXISTS "id-son";
+ALTER TABLE IF EXISTS ONLY public."article-résol-cam" DROP CONSTRAINT IF EXISTS "id-résolcam";
+ALTER TABLE IF EXISTS ONLY public."article-memoire" DROP CONSTRAINT IF EXISTS "id-mémoire";
+ALTER TABLE IF EXISTS ONLY public."article-det-pross" DROP CONSTRAINT IF EXISTS "id-détpross";
+ALTER TABLE IF EXISTS ONLY public."article-détails" DROP CONSTRAINT IF EXISTS "id-détails";
+ALTER TABLE IF EXISTS ONLY public."article-display" DROP CONSTRAINT IF EXISTS "id-display";
+ALTER TABLE IF EXISTS ONLY public."article-camera" DROP CONSTRAINT IF EXISTS "id-camera";
+ALTER TABLE IF EXISTS ONLY public.commentaire DROP CONSTRAINT IF EXISTS commentaire_commentateur_fkey;
+ALTER TABLE IF EXISTS ONLY public.commentaire DROP CONSTRAINT IF EXISTS commentaire_article_fkey;
+ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_vendeur_fkey;
+ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_categorie_fkey;
+ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_article_fkey;
+ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_acheteur_fkey;
+ALTER TABLE IF EXISTS ONLY public.vente DROP CONSTRAINT IF EXISTS vente_pkey;
+ALTER TABLE IF EXISTS ONLY public.utilisateur DROP CONSTRAINT IF EXISTS utilisateur_pkey;
+ALTER TABLE IF EXISTS ONLY public.stockage DROP CONSTRAINT IF EXISTS stockage_pkey;
+ALTER TABLE IF EXISTS ONLY public.son DROP CONSTRAINT IF EXISTS son_pkey;
+ALTER TABLE IF EXISTS ONLY public."résolution camera" DROP CONSTRAINT IF EXISTS "résolution camera_pkey";
+ALTER TABLE IF EXISTS ONLY public.memoire DROP CONSTRAINT IF EXISTS memoire_pkey;
+ALTER TABLE IF EXISTS ONLY public."détails" DROP CONSTRAINT IF EXISTS "détails_pkey";
+ALTER TABLE IF EXISTS ONLY public."détails processeur" DROP CONSTRAINT IF EXISTS "détails processeur_pkey";
+ALTER TABLE IF EXISTS ONLY public.display DROP CONSTRAINT IF EXISTS display_pkey;
+ALTER TABLE IF EXISTS ONLY public.categorie DROP CONSTRAINT IF EXISTS categorie_pkey;
+ALTER TABLE IF EXISTS ONLY public.camera DROP CONSTRAINT IF EXISTS camera_pkey;
+ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_pkey;
+ALTER TABLE IF EXISTS ONLY public."article-stockage" DROP CONSTRAINT IF EXISTS "article-stockage_pkey";
+ALTER TABLE IF EXISTS ONLY public."article-son" DROP CONSTRAINT IF EXISTS "article-son_pkey";
+ALTER TABLE IF EXISTS ONLY public."article-résol-cam" DROP CONSTRAINT IF EXISTS "article-résol-cam_pkey";
+ALTER TABLE IF EXISTS ONLY public."article-memoire" DROP CONSTRAINT IF EXISTS "article-memoire_pkey";
+ALTER TABLE IF EXISTS ONLY public."article-détails" DROP CONSTRAINT IF EXISTS "article-détails_pkey";
+ALTER TABLE IF EXISTS ONLY public."article-display" DROP CONSTRAINT IF EXISTS "article-display_pkey";
+ALTER TABLE IF EXISTS ONLY public."article-det-pross" DROP CONSTRAINT IF EXISTS "article-det-pross_pkey";
+ALTER TABLE IF EXISTS ONLY public."article-camera" DROP CONSTRAINT IF EXISTS "article-camera_pkey";
+ALTER TABLE IF EXISTS ONLY public.adresse DROP CONSTRAINT IF EXISTS adresse_pkey;
+ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_pkey;
+ALTER TABLE IF EXISTS public.utilisateur ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS public.adresse ALTER COLUMN id DROP DEFAULT;
+DROP TABLE IF EXISTS public.vente;
+DROP SEQUENCE IF EXISTS public.utilisateur_id_seq;
+DROP TABLE IF EXISTS public.utilisateur;
+DROP TABLE IF EXISTS public.stockage;
+DROP TABLE IF EXISTS public.son;
+DROP TABLE IF EXISTS public."résolution camera";
+DROP TABLE IF EXISTS public.memoire;
+DROP TABLE IF EXISTS public."détails processeur";
+DROP TABLE IF EXISTS public."détails";
+DROP TABLE IF EXISTS public.display;
+DROP TABLE IF EXISTS public.commentaire;
+DROP TABLE IF EXISTS public.categorie;
+DROP TABLE IF EXISTS public.camera;
+DROP TABLE IF EXISTS public."article-stockage";
+DROP TABLE IF EXISTS public."article-son";
+DROP TABLE IF EXISTS public."article-résol-cam";
+DROP TABLE IF EXISTS public."article-memoire";
+DROP TABLE IF EXISTS public."article-détails";
+DROP TABLE IF EXISTS public."article-display";
+DROP TABLE IF EXISTS public."article-det-pross";
+DROP TABLE IF EXISTS public."article-camera";
+DROP TABLE IF EXISTS public.article;
+DROP SEQUENCE IF EXISTS public.adresse_id_seq;
+DROP TABLE IF EXISTS public.adresse;
+DROP TABLE IF EXISTS public.achat;
+DROP FUNCTION IF EXISTS public.recherche(text text, cat integer);
+DROP DOMAIN IF EXISTS public.pays;
+DROP EXTENSION IF EXISTS adminpack;
 --
 -- Name: adminpack; Type: EXTENSION; Schema: -; Owner: -
 --
@@ -71,25 +118,40 @@ CREATE DOMAIN public.pays AS text
 ALTER DOMAIN public.pays OWNER TO postgres;
 
 --
--- Name: recherche(text); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: recherche(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.recherche(text text) RETURNS TABLE(modele text, categorie text, prix real, nom_vendeur text, prenom_vendeur text)
-    LANGUAGE sql
+CREATE FUNCTION public.recherche(text text, cat integer DEFAULT '-1'::integer) RETURNS TABLE(modele text, categorie text, prix real, nom_vendeur text, prenom_vendeur text)
+    LANGUAGE plpgsql
     AS $$
-    SELECT article.modele, categorie.nom, article.prix, utilisateur.nom, utilisateur.prenom  FROM article, utilisateur, categorie
-    WHERE article.vendeur=utilisateur.id
-	AND article.categorie=categorie.id
-	AND (
-	      LOWER(article.description) LIKE LOWER(text)
-       OR LOWER(article.marque) LIKE LOWER(text)
-       OR LOWER(article.serie) LIKE LOWER(text)
-       OR LOWER(article.modele) LIKE LOWER(text)
-	)
+BEGIN
+    IF cat = -1 THEN
+        RETURN QUERY SELECT article.modele, categorie.nom, article.prix, utilisateur.nom, utilisateur.prenom  FROM article, utilisateur, categorie
+            WHERE article.vendeur=utilisateur.id
+            AND article.categorie=categorie.id
+            AND (
+                  LOWER(article.description) LIKE LOWER(text)
+               OR LOWER(article.marque) LIKE LOWER(text)
+               OR LOWER(article.serie) LIKE LOWER(text)
+               OR LOWER(article.modele) LIKE LOWER(text)
+            );
+    ELSE
+        RETURN QUERY SELECT article.modele, categorie.nom, article.prix, utilisateur.nom, utilisateur.prenom  FROM article, utilisateur, categorie
+            WHERE article.vendeur=utilisateur.id
+            AND article.categorie=categorie.id
+            AND (
+                     LOWER(article.description) LIKE LOWER(text)
+                 OR LOWER(article.marque) LIKE LOWER(text)
+                 OR LOWER(article.serie) LIKE LOWER(text)
+                 OR LOWER(article.modele) LIKE LOWER(text)
+            )
+            AND article.categorie=cat;
+    END IF;
+END
 $$;
 
 
-ALTER FUNCTION public.recherche(text text) OWNER TO postgres;
+ALTER FUNCTION public.recherche(text text, cat integer) OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -684,14 +746,14 @@ COPY public.vente (vendeur, article) FROM stdin;
 -- Name: adresse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.adresse_id_seq', 2, true);
+SELECT pg_catalog.setval('public.adresse_id_seq', 34, true);
 
 
 --
 -- Name: utilisateur_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.utilisateur_id_seq', 2, true);
+SELECT pg_catalog.setval('public.utilisateur_id_seq', 24, true);
 
 
 --
