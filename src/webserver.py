@@ -5,6 +5,7 @@ from typing import Callable
 
 import sys
 
+import search
 from search import do_search
 
 # Webserver constants
@@ -57,3 +58,4 @@ def init():
     global inst
 
     inst = HTTPServer(SERVER_ADDRESS, WebpageSupplier)
+    search.init()

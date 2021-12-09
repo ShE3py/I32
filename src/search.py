@@ -1,36 +1,36 @@
+from bs4 import BeautifulSoup
+
 import database
+
+search_in_html: str
+search_item_card_in_html: str
+
+
+def init():
+    global search_in_html, search_item_card_in_html
+
+    with open("website/search.in.html", encoding="utf-8") as f:
+        search_in_html = f.read()
+
+    with open("website/search.item_card.in.html", encoding="utf-8") as f:
+        search_item_card_in_html = f.read()
 
 
 def do_search(query_vars: dict[str, list[str]]) -> str:
     search_input = query_vars['s'][0]
 
-    text = ""
+    soup = BeautifulSoup(search_in_html, features="html.parser")
+
+    inner_html = ""
     with database.conn.cursor() as cursor:
         cursor.execute("SELECT * FROM recherche(%s)", ('%' + search_input + '%',))
 
         for record in cursor:
-            text += "Modèle: {}<br />" \
-                    "Catégorie: {}<br />" \
-                    "Vendeur: {} {}<br />" \
-                    "Prix: {}€<br />" \
-                .format(record[0], record[1], record[3], record[4], record[2])
+            inner_html += search_item_card_in_html.format(model=record[0], price=record[2], seller_name=record[3], seller_surname=record[4])
 
-    return text
+    if not inner_html:
+        inner_html += "<h3>Aucun résultat.</h3>"
 
+    soup.find(id="__python_generate").append(BeautifulSoup(inner_html, features="html.parser"))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return str(soup)
