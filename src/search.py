@@ -1,3 +1,4 @@
+import urllib.parse
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler
 from typing import Optional
@@ -21,26 +22,26 @@ def init():
 
 
 def do_search(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[str]:
-    if 'what' not in query_vars:
-        rqw.send_error(HTTPStatus.BAD_REQUEST, None, "The query string isn't valid")
-
-        return None
-
-    search_input = query_vars['what'].strip()
+    if 'what' in query_vars:
+        search_input: Optional[str] = query_vars['what'].strip()
+        search_input = search_input.replace("%", "\\\\%").replace("_", "\\\\_")  # escape patterns in search input
+        search_input = "%" + search_input + "%"
+    else:
+        search_input = None
 
     if 'categorie' in query_vars:
         categorie = int(query_vars['categorie'])
     else:
-        categorie = -1
+        categorie = None
 
     soup = BeautifulSoup(search_in_html, features="html.parser")
 
     inner_html = ""
     with database.conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM recherche(%s, %s)", ('%' + search_input + '%', categorie))
+        cursor.execute("SELECT * FROM recherche(%s, %s)", (search_input, categorie))
 
         for record in cursor:
-            inner_html += search_item_card_in_html.format(model=record[0], categorie=record[1], price=record[2], seller_name=record[3], seller_surname=record[4])
+            inner_html += search_item_card_in_html.format(ref=urllib.parse.quote(record[0]), model=record[1], price=record[2], seller_name=record[3], seller_surname=record[4])
 
     if not inner_html:
         inner_html += "<h3>Aucun résultat.</h3>"

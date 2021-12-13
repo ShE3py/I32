@@ -90,7 +90,7 @@ DROP TABLE IF EXISTS public.article;
 DROP SEQUENCE IF EXISTS public.adresse_id_seq;
 DROP TABLE IF EXISTS public.adresse;
 DROP TABLE IF EXISTS public.achat;
-DROP FUNCTION IF EXISTS public.recherche(text text, cat integer);
+DROP FUNCTION IF EXISTS public.recherche(search_input text, categorie_filter integer);
 DROP DOMAIN IF EXISTS public.pays;
 DROP EXTENSION IF EXISTS adminpack;
 --
@@ -121,37 +121,28 @@ ALTER DOMAIN public.pays OWNER TO postgres;
 -- Name: recherche(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.recherche(text text, cat integer DEFAULT '-1'::integer) RETURNS TABLE(modele text, categorie text, prix real, nom_vendeur text, prenom_vendeur text)
+CREATE FUNCTION public.recherche(search_input text, categorie_filter integer DEFAULT NULL::integer) RETURNS TABLE(reference text, modele text, prix real, nom_vendeur text, prenom_vendeur text)
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    IF cat = -1 THEN
-        RETURN QUERY SELECT article.modele, categorie.nom, article.prix, utilisateur.nom, utilisateur.prenom  FROM article, utilisateur, categorie
-            WHERE article.vendeur=utilisateur.id
-            AND article.categorie=categorie.id
-            AND (
-                  LOWER(article.description) LIKE LOWER(text)
-               OR LOWER(article.marque) LIKE LOWER(text)
-               OR LOWER(article.serie) LIKE LOWER(text)
-               OR LOWER(article.modele) LIKE LOWER(text)
-            );
-    ELSE
-        RETURN QUERY SELECT article.modele, categorie.nom, article.prix, utilisateur.nom, utilisateur.prenom  FROM article, utilisateur, categorie
-            WHERE article.vendeur=utilisateur.id
-            AND article.categorie=categorie.id
-            AND (
-                     LOWER(article.description) LIKE LOWER(text)
-                 OR LOWER(article.marque) LIKE LOWER(text)
-                 OR LOWER(article.serie) LIKE LOWER(text)
-                 OR LOWER(article.modele) LIKE LOWER(text)
-            )
-            AND article.categorie=cat;
-    END IF;
+    RETURN QUERY SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, utilisateur
+        WHERE article.vendeur = utilisateur.id
+        AND (
+            search_input IS NULL
+            OR LOWER(article.description) LIKE LOWER(search_input)
+            OR LOWER(article.marque) LIKE LOWER(search_input)
+            OR LOWER(article.serie) LIKE LOWER(search_input)
+            OR LOWER(article.modele) LIKE LOWER(search_input)
+        )
+        AND (
+            categorie_filter IS NULL
+            OR article.categorie = categorie_filter
+        );
 END
 $$;
 
 
-ALTER FUNCTION public.recherche(text text, cat integer) OWNER TO postgres;
+ALTER FUNCTION public.recherche(search_input text, categorie_filter integer) OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -543,10 +534,10 @@ COPY public.achat (acheteur, article) FROM stdin;
 
 COPY public.adresse (id, pays, code_postal, rue, numero, complement) FROM stdin;
 3	France	57050	rue St Ferréol	144b	\N
-4	France	88630	rue de la Basilique	2	\N
 5	France	91600	rue du Président Roosevelt	127	App. 7
 1	France	93390	rue de Strasbourg	46	\N
 2	France	21000	rue des lieutenants Thomazo	109	\N
+4	France	88630	rue de la Basilique	2	\N
 \.
 
 
@@ -726,11 +717,11 @@ COPY public.utilisateur (id, nom, prenom, mail, tel, adresse) FROM stdin;
 2	Blanchefle	Robitaille	banchefle-robitaille@gmail.com	03 36 16 24	2
 1	Ferrau	Huppé	ferrau.huppe@yahoo.fr	01.11.92.28	1
 4	Gradasso	Bilodeau	gradasso@google.com	+33 3 35 61 28	3
-5	d'Arc	Jeanne	jeannedarc@vosges.fr	0329069586	4
 6	Romée	Isabelle	isabelleromee@vosges.fr	0329069586	4
 7	d'Arc	Jacques	jacquesdarc@vosges.fr	03 29 06 95 86	4
 8	d'Arc	Catherine	catherine@vosges.fr	0329 0695 86	4
 9	de Chateaub	Royce	royce@dechateaub.co.uk	014932645	5
+5	d'Arc	Jeanne	jeannedarc@vosges.fr	0329069586	4
 \.
 
 
