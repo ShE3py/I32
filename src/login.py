@@ -5,6 +5,7 @@ from typing import Optional
 import database
 
 
+# Login attempt with a specified email
 def do_login(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[str]:
     if 'mail' not in query_vars:
         rqw.send_error(HTTPStatus.BAD_REQUEST, None, "The query string isn't valid")
@@ -24,6 +25,7 @@ def do_login(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optio
 
         user_id = rs[0]
 
+    # Set authentification cookie, then redirect to main page
     rqw.send_response(HTTPStatus.SEE_OTHER)
     rqw.send_header("Set-Cookie", "userid=%d;" % user_id)
     rqw.send_header("Location", "/accueil.html")

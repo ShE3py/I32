@@ -6,6 +6,7 @@ import database
 from profile import read_userid_cookie
 
 
+# Reads an user's data from the query string's variables
 def read_user(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[tuple]:
     if not all(var in query_vars for var in ("name", "surname", "mail", "street", "street_number", "additional_address", "postal_code", "country", "tel")):
         rqw.send_error(HTTPStatus.BAD_REQUEST, None, "The query string isn't valid")
@@ -33,6 +34,7 @@ def read_user(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Opti
     return name, surname, mail, street, street_number, additional_address, postal_code, country, tel
 
 
+# Creates a new user
 def do_register(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[str]:
     ru = read_user(query_vars, rqw)
     if ru is None:
@@ -58,6 +60,7 @@ def do_register(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Op
     return None
 
 
+# Updates an existing user's data
 def do_user_update(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[str]:
     user_id = read_userid_cookie(rqw)
     ru = read_user(query_vars, rqw)

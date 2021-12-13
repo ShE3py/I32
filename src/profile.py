@@ -16,6 +16,7 @@ def init():
         profile_in_html = f.read()
 
 
+# Returns the remote user's userid, redirect to login page if unavailable
 def read_userid_cookie(rqw: SimpleHTTPRequestHandler) -> Optional[int]:
     cookie: str = rqw.headers.get("Cookie")
 
@@ -39,6 +40,7 @@ def read_userid_cookie(rqw: SimpleHTTPRequestHandler) -> Optional[int]:
     return user_id
 
 
+# Shows the profile informations of a remote user; redirect to login page if the user hasn't logged in
 def show_profile(_query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[str]:
     user_id = read_userid_cookie(rqw)
     if user_id is None:

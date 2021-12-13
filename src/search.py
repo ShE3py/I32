@@ -1,5 +1,4 @@
 import urllib.parse
-from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler
 from typing import Optional
 
@@ -21,7 +20,7 @@ def init():
         search_item_card_in_html = f.read()
 
 
-def do_search(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Optional[str]:
+def do_search(query_vars: dict[str, str], _rqw: SimpleHTTPRequestHandler) -> Optional[str]:
     if 'what' in query_vars:
         search_input: Optional[str] = query_vars['what'].strip()
         search_input = search_input.replace("%", "\\\\%").replace("_", "\\\\_")  # escape patterns in search input
