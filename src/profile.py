@@ -33,7 +33,7 @@ def read_userid_cookie(rqw: SimpleHTTPRequestHandler) -> Optional[int]:
     except ValueError:
         rqw.send_response(HTTPStatus.TEMPORARY_REDIRECT)
         rqw.send_header("Location", "/login.html?redirect=%s" % urllib.parse.quote(rqw.path))
-        rqw.send_error("Set-Cookie", "")
+        rqw.send_header("Set-Cookie", "userid=;expires=Thu, 01 Jan 1970 00:00:01 GMT")
         rqw.end_headers()
 
         return None
@@ -57,6 +57,14 @@ AND utilisateur.id=%s
         """, (user_id,))
 
         rs = cursor.fetchone()
+
+    if rs is None:
+        rqw.send_response(HTTPStatus.TEMPORARY_REDIRECT)
+        rqw.send_header("Location", "/login.html?redirect=%s" % urllib.parse.quote(rqw.path))
+        rqw.send_header("Set-Cookie", "userid=;expires=Thu, 01 Jan 1970 00:00:01 GMT")
+        rqw.end_headers()
+
+        return None
 
     soup = BeautifulSoup(profile_in_html, features="html.parser")
     form = soup.find(id="profilebox")
