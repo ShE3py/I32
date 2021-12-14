@@ -93,6 +93,53 @@
                 </li>
             </ul>
         </nav>
+        <nav id="navbar" class="navbar flex-column align-items-stretch sticky-lg-top" style="background-color: rgb(247, 242, 242); width: 10%;">
+            <div class="nav nav-pills nav-fill"style="background-color: rgb(247, 242, 242);">
+                <form action="url_for{{'search'}}">
+                        marque<span id="..."></span><br>
+                        <input type="radio" name="marque" onclick="window.location('/search')" value="smartphone">peu importe<br>
+                        <input type="radio" name="marque" value="apple">Apple<br/>
+                        <input type="radio" name="marque" value="samsung">Samsung<br/>
+                        <input type="radio" name="marque" value="xiaomi">Xiaomi <br/>
+                        <input type="radio" name="marque" value="huawei">Huawei <br/>
+                        <input type="radio" name="marque" value="nokia">Nokia<br/>
+                        <input type="radio" name="marque" value="google">Google <br/>
+                        <input type="radio" name="marque" value="oppo">Oppo <br/>
+    
+                        Serie<span id="..."></span><br>
+                        <input type="radio" name="serie" onclick="window.location('/search')" value="smartphone">peu importe<br>
+                        <input type="radio" name="serie" value="iphone_14">Iphone 14<br/>
+    
+                        Système de'éxploitation<span id="..."></span><br>
+                        <input type="radio" name="sys_exp" onclick="window.location('/search')" value="smartphone">peu importe<br>
+                        <input type="radio" name="sys_exp" value="ios">IOS<br/>
+                        <input type="radio" name="sys_exp" value="samsung">Android<br/>
+                        <input type="radio" name="sys_exp" value="xiaomi">Autre <br/>
+    
+                        Capacité de stockage<span id="..."></span><br>
+                        <input type="radio" name="capacite" onclick="window.location('/search')" value="smartphone">peu importe<br>
+                        <input type="radio" name="capacite" value="ios">4 GO<br/>
+                        <input type="radio" name="capacite" value="samsung">8 GO<br/>
+                        <input type="radio" name="capacite" value="xiaomi">9 GO <br/>
+    
+                        Couleur<span id="..."></span><br>
+                        <input type="radio" name="couleur" onclick="window.location('/search')" value="smartphone">peu importe<br>
+                        <input type="radio" name="couleur" value="rouge">Rouge<br/>
+                        <input type="radio" name="couleur" value="noir">Noir<br/>
+                        <input type="radio" name="couleur" value="bleu">Bleu<br/>
+                        <input type="radio" name="couleur" value="argent">Argent<br/>
+                        <input type="radio" name="couleur" value="or">Or<br/>
+    
+    
+    
+                        Prix<span id="..."></span><br>
+                        <input type="radio" name="prix" value="prix-max">MAX<br>
+                        <input type="radio" name="prix" value="prix-min">MIN<br>
+                        <input type="radio" name="prix" value="croissant">Croissant<br>
+                        <input type="radio" name="prix" value="decroissant">décroissant
+                </form>
+            </div>
+        </nav>
 
         <div class="main">
             <div class="row" id="__python_generate">
