@@ -2,12 +2,11 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12"><h5>{model}</h5></div>
-            <p class="card-text">Catégorie: {categorie}<br />Vendeur: {seller_name} {seller_surname}</p>
+            <p class="card-text">Vendeur: {seller_name} {seller_surname}</p>
         </div>
         <span>Prix: {price:.2f} €</span><br>
         <ul class="buttons">
-            <li class="cart"><a href="#">Ajouter au panier</a></li>
-            <li class="shop_btn"><a href="single.html">Lire plus</a></li>
+            <li class="shop_btn"><a href="item.html?ref={ref}">Voir plus</a></li>
         </ul>
     </div>
 </div>

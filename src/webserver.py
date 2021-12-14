@@ -65,17 +65,19 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 
         except:
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, None)
-            logging.exception("webserver:do_dynamic")
+            logging.exception("webserver:do_dynamic")  # print strack trace
 
         return
 
     def do_dynamic(self, path: str, f: Callable[[dict[str, str], SimpleHTTPRequestHandler], Optional[str]]):
+        # query_string: all the characters after the `?` in an URL
         query_string = self.path[len(path) + len('?'):]
 
         if query_string:
             _qs_vars = urllib.parse.parse_qs(query_string, keep_blank_values=True, strict_parsing=True, errors='strict')
             qs_vars = dict()
 
+            # `urllib.parse.parse_qs()` allows duplicated keys, we don't want this behavior
             for k, v in _qs_vars.items():
                 l = len(v)
 
@@ -90,10 +92,12 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
         else:
             qs_vars = dict()
 
+        # `f()` is the dynamic page handler
         result = f(qs_vars, self)
         if result is None:
-            return
+            return  # `f()` return `None` if the event is already handled
 
+        # `f()` return an `str` representing the HTML page to show
         content_bytes = result.encode()
 
         self.send_response(HTTPStatus.OK)
