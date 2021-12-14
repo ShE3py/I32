@@ -52,6 +52,9 @@
                     <!-- start search-->
                     <form class="d-flex" action="/search.html" method="GET">
                         <input name="what" class="form-control " type="search" size="60" placeholder="Essayez Iphone 14, Xiaomi 21, mac pro..." aria-label="Search" style="border-radius: 10px 0 0 10px; border: none;">
+
+                        <input type="hidden" id="__js_generated" />
+
                         <button class="btn btn-outline-info" type="submit" style="border-radius: 0 20px 20px 0; border: none; background-color: #fff;"><i class="fas fa-search"></i></button>
                         <a class="nav-link " aria-current="page" href="profile.html" style="color: #ffffff"><i class="far fa-user-circle fa-2x" aria-hidden="true"></i></a>
                         <a class="nav-link " aria-current="page" href="panier.html" style="color: #ffffff">
@@ -74,28 +77,45 @@
             <ul class="nav nav-pills">
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/search.html?categorie=1" style="color: #fff;">Smartphones</a>
+                    <a class="nav-link search-nav-link" href="/search.html?categorie=1" style="color: #fff;">Smartphones</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/search.html?categorie=2" style="color: #fff;">PC</a>
+                    <a class="nav-link search-nav-link" href="/search.html?categorie=2" style="color: #fff;">PC</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/search.html?categorie=3" style="color: #fff;">Tablettes</a>
+                    <a class="nav-link search-nav-link" href="/search.html?categorie=3" style="color: #fff;">Tablettes</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="/search.html?categorie=4" style="color: #fff;">Audio</a>
+                    <a class="nav-link search-nav-link" href="/search.html?categorie=4" style="color: #fff;">Audio</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="/search.html?categorie=5" style="color: #fff;">Camera</a>
+                    <a class="nav-link search-nav-link" href="/search.html?categorie=5" style="color: #fff;">Camera</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="/add_item.html" style="color: #fff;">Vendre</a>
+                    <a class="nav-link" href="/add_item.html" style="color: #fff;">Vendre</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link " href="contact.html" style="color: #fff;">Contact</a>
+                    <a class="nav-link" href="contact.html" style="color: #fff;">Contact</a>
                 </li>
             </ul>
         </nav>
+
+        <script>
+            const qs = new URLSearchParams(window.location.search)
+
+            const categorie = qs.get("categorie")
+            if(categorie !== null) {
+                const el = document.getElementById("__js_generated")
+
+                el.name = "categorie"
+                el.value = categorie
+            }
+
+            const what = qs.get("what")
+            if(what !== null && what.length !== 0) {
+                Array.from(document.getElementsByClassName("search-nav-link")).forEach(snl => (snl.href += ("&what=" + what)))
+            }
+        </script>
 
         <div class="main">
             <div class="row" id="__python_generate">
