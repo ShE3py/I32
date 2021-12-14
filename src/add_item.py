@@ -47,8 +47,6 @@ def do_add_item(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Op
     categorie, model, series, brand, description, price = ri
     ref = "item-" + hex(time.time_ns())[2:]
 
-    database.conn.rollback()
-
     with database.conn.cursor() as cursor:
         cursor.execute("INSERT INTO article VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (ref, categorie, user_id, price, description, brand, series, model))
 

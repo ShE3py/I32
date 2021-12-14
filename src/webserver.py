@@ -6,6 +6,7 @@ from typing import Callable, Optional
 
 import sys
 
+import database
 import profile
 import search
 from add_item import do_add_item
@@ -73,6 +74,7 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
         except:
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, None)
             logging.exception("webserver:do_dynamic")  # print strack trace
+            database.conn.rollback()
 
         return
 

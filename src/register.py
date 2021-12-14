@@ -41,7 +41,6 @@ def do_register(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Op
         return None
 
     name, surname, mail, street, street_number, additional_address, postal_code, country, tel = ru
-    database.conn.rollback()
 
     with database.conn.cursor() as cursor:
         cursor.execute("INSERT INTO adresse VALUES (DEFAULT, %s, %s, %s, %s, %s) RETURNING id", (country, postal_code, street, street_number, additional_address))
@@ -69,7 +68,6 @@ def do_user_update(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) ->
         return None
 
     name, surname, mail, street, street_number, additional_address, postal_code, country, tel = ru
-    database.conn.rollback()
 
     with database.conn.cursor() as cursor:
         cursor.execute("SELECT adresse FROM utilisateur WHERE utilisateur.id=%s", (user_id,))
