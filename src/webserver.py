@@ -76,8 +76,15 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 
                 super().do_GET()
 
+        except ConnectionAbortedError:
+            pass
+
         except:
-            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, None)
+            try:
+                self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, None)
+            except ConnectionAbortedError:
+                pass
+
             logging.exception("webserver:do_dynamic")  # print strack trace
             database.conn.rollback()
 
