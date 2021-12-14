@@ -43,6 +43,7 @@ ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_article_
 ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_acheteur_fkey;
 ALTER TABLE IF EXISTS ONLY public.vente DROP CONSTRAINT IF EXISTS vente_pkey;
 ALTER TABLE IF EXISTS ONLY public.utilisateur DROP CONSTRAINT IF EXISTS utilisateur_pkey;
+ALTER TABLE IF EXISTS ONLY public.utilisateur DROP CONSTRAINT IF EXISTS utilisateur_mail_key;
 ALTER TABLE IF EXISTS ONLY public.stockage DROP CONSTRAINT IF EXISTS stockage_pkey;
 ALTER TABLE IF EXISTS ONLY public.son DROP CONSTRAINT IF EXISTS son_pkey;
 ALTER TABLE IF EXISTS ONLY public."résolution camera" DROP CONSTRAINT IF EXISTS "résolution camera_pkey";
@@ -230,7 +231,8 @@ CREATE TABLE public.article (
     description text,
     marque text,
     serie text,
-    modele text
+    modele text,
+    CONSTRAINT article_prix_check CHECK (((prix >= (0)::real) AND (prix <> 'NaN'::real) AND (prix <> 'Infinity'::real)))
 );
 
 
@@ -757,14 +759,14 @@ COPY public.vente (vendeur, article) FROM stdin;
 -- Name: adresse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.adresse_id_seq', 34, true);
+SELECT pg_catalog.setval('public.adresse_id_seq', 35, true);
 
 
 --
 -- Name: utilisateur_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.utilisateur_id_seq', 24, true);
+SELECT pg_catalog.setval('public.utilisateur_id_seq', 25, true);
 
 
 --
@@ -925,6 +927,14 @@ ALTER TABLE ONLY public.son
 
 ALTER TABLE ONLY public.stockage
     ADD CONSTRAINT stockage_pkey PRIMARY KEY ("id-stockage");
+
+
+--
+-- Name: utilisateur utilisateur_mail_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.utilisateur
+    ADD CONSTRAINT utilisateur_mail_key UNIQUE (mail);
 
 
 --
