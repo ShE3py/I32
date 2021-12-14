@@ -40,7 +40,7 @@ def do_search(query_vars: dict[str, str], _rqw: SimpleHTTPRequestHandler) -> Opt
         cursor.execute("SELECT * FROM recherche(%s, %s, 0)", (search_input, categorie))
 
         for record in cursor:
-            inner_html += search_item_card_in_html.format(ref=urllib.parse.quote(record[0]), model=record[1], price=record[2], seller_name=record[3], seller_surname=record[4])
+            inner_html += search_item_card_in_html.format(ref=urllib.parse.quote(record[0]), model=record[1], price=record[2], seller_surname=record[3], seller_name=record[4])
 
     if not inner_html:
         inner_html += "<h3>Aucun résultat.</h3>"

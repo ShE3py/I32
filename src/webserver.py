@@ -7,9 +7,11 @@ from typing import Callable, Optional
 import sys
 
 import database
+import item
 import profile
 import search
 from add_item import do_add_item
+from item import show_item
 from login import do_login
 from profile import show_profile, read_userid_cookie
 from register import do_register, do_user_update
@@ -64,6 +66,9 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 
             elif self.path.startswith("/do_add.html"):
                 self.do_dynamic("/do_add.html", do_add_item)
+
+            elif self.path.startswith("/item.html"):
+                self.do_dynamic("/item.html", show_item)
 
             else:
                 if self.path.startswith("/add_item.html"):
@@ -133,3 +138,4 @@ def init():
     inst = HTTPServer(SERVER_ADDRESS, WebpageSupplier)
     search.init()
     profile.init()
+    item.init()
