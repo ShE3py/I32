@@ -140,9 +140,9 @@
 											<span><label></label></span>
 											<input type="text" disabled>
 										</div>
-										
+
 								</div>
-								
+
 								<input type="submit" class="button" value="Créer un compte" style="margin-right: 2em">
 				 </fieldset>
 				 </form>
@@ -158,8 +158,21 @@
 						      <label for="modlgn_username">Email</label>
 						      <input id="modlgn_username" type="text" name="mail" class="inputbox" size="18" autocomplete="off">
 						    </p>
-						    
-							    <input type="submit" class="button" value="Connexion"><div class="clear"></div>
+
+							  <input type="hidden" id="__js_generated" />
+							  <input type="submit" class="button" value="Connexion"><div class="clear"></div>
+
+							  <script>
+								  const qs = new URLSearchParams(window.location.search);
+								  const redirect = qs.get("redirect")
+
+								  if(redirect !== null) {
+									  const el = document.getElementById("__js_generated")
+
+									  el.name = "redirect"
+									  el.value = redirect
+								  }
+							  </script>
 							 
 						  </fieldset>
 						 </form>

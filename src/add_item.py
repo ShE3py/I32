@@ -1,7 +1,10 @@
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler
 from typing import Optional
+import time
+import base64
 
+import database
 from profile import read_userid_cookie
 
 
@@ -23,6 +26,14 @@ def read_item(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Opti
 
         return None
 
+    try:
+        categorie = int(categorie)
+        price = float(price)
+    except ValueError:
+        rqw.send_error(HTTPStatus.BAD_REQUEST, None, "A parameter isn't valid")
+
+        return None
+
     return categorie, model, series, brand, description, price
 
 
@@ -34,4 +45,18 @@ def do_add_item(query_vars: dict[str, str], rqw: SimpleHTTPRequestHandler) -> Op
         return None
 
     categorie, model, series, brand, description, price = ri
-    
+    ref = "item-" + hex(time.time_ns())[2:]
+
+    database.conn.rollback()
+
+    with database.conn.cursor() as cursor:
+        cursor.execute("INSERT INTO article VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (ref, categorie, user_id, price, description, brand, series, model))
+
+    database.conn.commit()
+
+    rqw.send_response(HTTPStatus.SEE_OTHER)
+    rqw.send_header("Set-Cookie", "userid=%d;" % user_id)
+    rqw.send_header("Location", "/item.html?ref=%s" % ref)
+    rqw.end_headers()
+
+    return None

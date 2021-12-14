@@ -8,8 +8,9 @@ import sys
 
 import profile
 import search
+from add_item import do_add_item
 from login import do_login
-from profile import show_profile
+from profile import show_profile, read_userid_cookie
 from register import do_register, do_user_update
 from search import do_search
 
@@ -60,7 +61,13 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
             elif self.path.startswith("/do_update.html"):
                 self.do_dynamic("/do_update.html", do_user_update)
 
+            elif self.path.startswith("/do_add.html"):
+                self.do_dynamic("/do_add.html", do_add_item)
+
             else:
+                if self.path.startswith("/add_item.html"):
+                    read_userid_cookie(self)  # force login
+
                 super().do_GET()
 
         except:

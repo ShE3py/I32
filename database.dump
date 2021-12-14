@@ -90,7 +90,7 @@ DROP TABLE IF EXISTS public.article;
 DROP SEQUENCE IF EXISTS public.adresse_id_seq;
 DROP TABLE IF EXISTS public.adresse;
 DROP TABLE IF EXISTS public.achat;
-DROP FUNCTION IF EXISTS public.recherche(search_input text, categorie_filter integer);
+DROP FUNCTION IF EXISTS public.recherche(search_input text, categorie_filter integer, price_min real, price_max real, ordering integer);
 DROP DOMAIN IF EXISTS public.pays;
 DROP EXTENSION IF EXISTS adminpack;
 --
@@ -118,14 +118,17 @@ CREATE DOMAIN public.pays AS text
 ALTER DOMAIN public.pays OWNER TO postgres;
 
 --
--- Name: recherche(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: recherche(text, integer, real, real, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.recherche(search_input text, categorie_filter integer DEFAULT NULL::integer) RETURNS TABLE(reference text, modele text, prix real, nom_vendeur text, prenom_vendeur text)
+CREATE FUNCTION public.recherche(search_input text DEFAULT NULL::text, categorie_filter integer DEFAULT NULL::integer, price_min real DEFAULT 0, price_max real DEFAULT 'Infinity'::real, ordering integer DEFAULT 0) RETURNS TABLE(reference text, modele text, prix real, nom_vendeur text, prenom_vendeur text)
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    RETURN QUERY SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, utilisateur
+    CREATE TEMPORARY TABLE unordered(reference text, modele text, prix real, nom_vendeur text, prenom_vendeur text);
+
+    INSERT INTO unordered (
+        SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, utilisateur
         WHERE article.vendeur = utilisateur.id
         AND (
             search_input IS NULL
@@ -137,12 +140,29 @@ BEGIN
         AND (
             categorie_filter IS NULL
             OR article.categorie = categorie_filter
-        );
+        )
+        AND (
+            article.prix >= price_min
+            AND article.prix <= price_max
+        )
+    );
+
+    IF ordering = 0 THEN
+        RETURN QUERY SELECT * FROM unordered;
+    ELSEIF ordering = 1 THEN
+        RETURN QUERY SELECT * FROM unordered ORDER BY prix ASC;
+    ELSEIF ordering = 2 THEN
+        RETURN QUERY SELECT * FROM unordered ORDER BY prix DESC;
+    ELSE
+        RAISE EXCEPTION 'unknow ordering %', ordering;
+    END IF;
+
+    DROP TABLE unordered;
 END
 $$;
 
 
-ALTER FUNCTION public.recherche(search_input text, categorie_filter integer) OWNER TO postgres;
+ALTER FUNCTION public.recherche(search_input text, categorie_filter integer, price_min real, price_max real, ordering integer) OWNER TO postgres;
 
 SET default_tablespace = '';
 

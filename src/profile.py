@@ -3,6 +3,7 @@ from http.server import SimpleHTTPRequestHandler
 from typing import Optional
 
 from bs4 import BeautifulSoup
+import urllib.parse
 
 import database
 
@@ -22,7 +23,7 @@ def read_userid_cookie(rqw: SimpleHTTPRequestHandler) -> Optional[int]:
 
     if not cookie or not cookie.startswith("userid="):
         rqw.send_response(HTTPStatus.TEMPORARY_REDIRECT)
-        rqw.send_header("Location", "/login.html")
+        rqw.send_header("Location", "/login.html?redirect=%s" % urllib.parse.quote(rqw.path))
         rqw.end_headers()
 
         return None
@@ -31,7 +32,7 @@ def read_userid_cookie(rqw: SimpleHTTPRequestHandler) -> Optional[int]:
         user_id = int(cookie[len("userid="):])
     except ValueError:
         rqw.send_response(HTTPStatus.TEMPORARY_REDIRECT)
-        rqw.send_header("Location", "/login.html")
+        rqw.send_header("Location", "/login.html?redirect=%s" % urllib.parse.quote(rqw.path))
         rqw.send_error("Set-Cookie", "")
         rqw.end_headers()
 
