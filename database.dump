@@ -83,6 +83,7 @@ DROP TABLE IF EXISTS public.display;
 DROP TABLE IF EXISTS public.commentaire;
 DROP TABLE IF EXISTS public.categorie;
 DROP TABLE IF EXISTS public.camera;
+DROP VIEW IF EXISTS public.articles_en_vente;
 DROP TABLE IF EXISTS public.article_en_vente;
 DROP TABLE IF EXISTS public."article-stockage";
 DROP TABLE IF EXISTS public."article-son";
@@ -99,6 +100,9 @@ DROP TABLE IF EXISTS public.achat;
 DROP FUNCTION IF EXISTS public.sync_articles_en_vente();
 DROP FUNCTION IF EXISTS public.sync_achat_vente();
 DROP FUNCTION IF EXISTS public.recherche(search_input text, categorie_filter integer, price_min real, price_max real, ordering integer);
+DROP FUNCTION IF EXISTS public.historique_vente(user_id integer);
+DROP FUNCTION IF EXISTS public.historique_achat(user_id integer);
+DROP FUNCTION IF EXISTS public.articles_vendus_par(user_id integer);
 DROP DOMAIN IF EXISTS public.pays;
 DROP EXTENSION IF EXISTS adminpack;
 --
@@ -126,6 +130,66 @@ CREATE DOMAIN public.pays AS text
 ALTER DOMAIN public.pays OWNER TO postgres;
 
 --
+-- Name: articles_vendus_par(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.articles_vendus_par(user_id integer) RETURNS TABLE(reference text, modele text, prix real)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+        SELECT article.reference, article.modele, article.prix FROM articles_en_vente article
+        WHERE article.vendeur = user_id;
+END;
+$$;
+
+
+ALTER FUNCTION public.articles_vendus_par(user_id integer) OWNER TO postgres;
+
+--
+-- Name: historique_achat(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.historique_achat(user_id integer) RETURNS TABLE(reference text, modele text, prix real, nom_vendeur text, prenom_vendeur text)
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+        RETURN QUERY
+            SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, utilisateur
+                WHERE article.vendeur = utilisateur.id
+                AND article.reference IN (
+                    SELECT article FROM achat
+                    WHERE achat.acheteur=user_id
+                );
+    END;
+$$;
+
+
+ALTER FUNCTION public.historique_achat(user_id integer) OWNER TO postgres;
+
+--
+-- Name: historique_vente(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.historique_vente(user_id integer) RETURNS TABLE(reference text, modele text, prix real, nom_acheteur text, prenom_acheteur text)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+        RETURN QUERY
+            SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, achat, utilisateur
+                WHERE article.reference IN (
+                    SELECT vente.article FROM vente
+                        WHERE vente.vendeur=user_id
+                )
+                AND achat.article = article.reference
+                AND utilisateur.id = achat.acheteur;
+    END;
+$$;
+
+
+ALTER FUNCTION public.historique_vente(user_id integer) OWNER TO postgres;
+
+--
 -- Name: recherche(text, integer, real, real, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -136,7 +200,7 @@ BEGIN
     CREATE TEMPORARY TABLE unordered(reference text, modele text, prix real, nom_vendeur text, prenom_vendeur text);
 
     INSERT INTO unordered (
-        SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, utilisateur
+        SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM articles_en_vente article, utilisateur
         WHERE article.vendeur = utilisateur.id
         AND (
             search_input IS NULL
@@ -399,6 +463,26 @@ CREATE TABLE public.article_en_vente (
 
 
 ALTER TABLE public.article_en_vente OWNER TO postgres;
+
+--
+-- Name: articles_en_vente; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.articles_en_vente AS
+ SELECT article.reference,
+    article.categorie,
+    article.vendeur,
+    article.prix,
+    article.description,
+    article.marque,
+    article.serie,
+    article.modele
+   FROM public.article
+  WHERE (article.reference IN ( SELECT article_en_vente.article
+           FROM public.article_en_vente));
+
+
+ALTER TABLE public.articles_en_vente OWNER TO postgres;
 
 --
 -- Name: camera; Type: TABLE; Schema: public; Owner: postgres
@@ -718,6 +802,7 @@ COPY public."article-stockage" (reference, "id-stockage") FROM stdin;
 COPY public.article_en_vente (article) FROM stdin;
 abricot
 banane
+courgette
 datte
 érable
 figue
@@ -842,14 +927,14 @@ COPY public.vente (vendeur, article) FROM stdin;
 -- Name: adresse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.adresse_id_seq', 35, true);
+SELECT pg_catalog.setval('public.adresse_id_seq', 36, true);
 
 
 --
 -- Name: utilisateur_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.utilisateur_id_seq', 25, true);
+SELECT pg_catalog.setval('public.utilisateur_id_seq', 26, true);
 
 
 --
