@@ -1,8 +1,8 @@
-form {
+form#searchform {
     width: 16em;
 }
 
-form select, input[type=text], input[type=number], input[type=submit] {
+form#searchform select, form#searchform input[type=text], form#searchform input[type=number], form#searchform input[type=submit] {
     width: 100%;
     font-size: .9em;
     font-family: 'Open Sans', sans-serif;
@@ -13,7 +13,7 @@ form select, input[type=text], input[type=number], input[type=submit] {
     color: #404040;
 }
 
-form input[type=submit] {
+form#searchform input[type=submit] {
     margin-bottom: 0;
     margin-top: .5em;
     border: 3px double #EEE;
