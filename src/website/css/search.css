@@ -1,20 +1,20 @@
 form#searchform {
-    width: 16em;
+	width: 16em;
 }
 
 form#searchform select, form#searchform input[type=text], form#searchform input[type=number], form#searchform input[type=submit] {
-    width: 100%;
-    font-size: .9em;
-    font-family: 'Open Sans', sans-serif;
-    border: 1px solid #EEE;
-    background-color: transparent;
-    padding: .5em;
-    margin-bottom: .5em;
-    color: #404040;
+	width: 100%;
+	font-size: .9em;
+	font-family: "Open Sans", sans-serif;
+	border: 1px solid #eee;
+	background-color: transparent;
+	padding: .5em;
+	margin-bottom: .5em;
+	color: #404040;
 }
 
 form#searchform input[type=submit] {
-    margin-bottom: 0;
-    margin-top: .5em;
-    border: 3px double #EEE;
+	margin-bottom: 0;
+	margin-top: .5em;
+	border: 3px double #eee;
 }
