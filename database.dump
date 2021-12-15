@@ -19,7 +19,6 @@ SET row_security = off;
 ALTER TABLE IF EXISTS ONLY public.vente DROP CONSTRAINT IF EXISTS vente_vendeur_fkey;
 ALTER TABLE IF EXISTS ONLY public.vente DROP CONSTRAINT IF EXISTS vente_article_fkey;
 ALTER TABLE IF EXISTS ONLY public.utilisateur DROP CONSTRAINT IF EXISTS utilisateur_adresse_fkey;
-ALTER TABLE IF EXISTS ONLY public."article-camera" DROP CONSTRAINT IF EXISTS refrence;
 ALTER TABLE IF EXISTS ONLY public."article-son" DROP CONSTRAINT IF EXISTS reference;
 ALTER TABLE IF EXISTS ONLY public."article-det-pross" DROP CONSTRAINT IF EXISTS reference;
 ALTER TABLE IF EXISTS ONLY public."article-détails" DROP CONSTRAINT IF EXISTS reference;
@@ -34,12 +33,13 @@ ALTER TABLE IF EXISTS ONLY public."article-memoire" DROP CONSTRAINT IF EXISTS "i
 ALTER TABLE IF EXISTS ONLY public."article-det-pross" DROP CONSTRAINT IF EXISTS "id-détpross";
 ALTER TABLE IF EXISTS ONLY public."article-détails" DROP CONSTRAINT IF EXISTS "id-détails";
 ALTER TABLE IF EXISTS ONLY public."article-display" DROP CONSTRAINT IF EXISTS "id-display";
-ALTER TABLE IF EXISTS ONLY public."article-camera" DROP CONSTRAINT IF EXISTS "id-camera";
 ALTER TABLE IF EXISTS ONLY public.commentaire DROP CONSTRAINT IF EXISTS commentaire_commentateur_fkey;
 ALTER TABLE IF EXISTS ONLY public.commentaire DROP CONSTRAINT IF EXISTS commentaire_article_fkey;
 ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_vendeur_fkey;
 ALTER TABLE IF EXISTS ONLY public.article_en_vente DROP CONSTRAINT IF EXISTS article_en_vente_article_fkey;
 ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_categorie_fkey;
+ALTER TABLE IF EXISTS ONLY public.article_camera DROP CONSTRAINT IF EXISTS article_camera_reference_fkey;
+ALTER TABLE IF EXISTS ONLY public.article_camera DROP CONSTRAINT IF EXISTS article_camera_id_camera_fkey;
 ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_article_fkey;
 ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_acheteur_fkey;
 DROP TRIGGER IF EXISTS sync_articles_en_vente_trigger ON public.article;
@@ -58,6 +58,7 @@ ALTER TABLE IF EXISTS ONLY public.categorie DROP CONSTRAINT IF EXISTS categorie_
 ALTER TABLE IF EXISTS ONLY public.camera DROP CONSTRAINT IF EXISTS camera_pkey;
 ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_pkey;
 ALTER TABLE IF EXISTS ONLY public.article_en_vente DROP CONSTRAINT IF EXISTS article_en_vente_pkey;
+ALTER TABLE IF EXISTS ONLY public.article_camera DROP CONSTRAINT IF EXISTS article_camera_pkey;
 ALTER TABLE IF EXISTS ONLY public."article-stockage" DROP CONSTRAINT IF EXISTS "article-stockage_pkey";
 ALTER TABLE IF EXISTS ONLY public."article-son" DROP CONSTRAINT IF EXISTS "article-son_pkey";
 ALTER TABLE IF EXISTS ONLY public."article-résol-cam" DROP CONSTRAINT IF EXISTS "article-résol-cam_pkey";
@@ -65,10 +66,10 @@ ALTER TABLE IF EXISTS ONLY public."article-memoire" DROP CONSTRAINT IF EXISTS "a
 ALTER TABLE IF EXISTS ONLY public."article-détails" DROP CONSTRAINT IF EXISTS "article-détails_pkey";
 ALTER TABLE IF EXISTS ONLY public."article-display" DROP CONSTRAINT IF EXISTS "article-display_pkey";
 ALTER TABLE IF EXISTS ONLY public."article-det-pross" DROP CONSTRAINT IF EXISTS "article-det-pross_pkey";
-ALTER TABLE IF EXISTS ONLY public."article-camera" DROP CONSTRAINT IF EXISTS "article-camera_pkey";
 ALTER TABLE IF EXISTS ONLY public.adresse DROP CONSTRAINT IF EXISTS adresse_pkey;
 ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_pkey;
 ALTER TABLE IF EXISTS public.utilisateur ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS public.camera ALTER COLUMN id_camera DROP DEFAULT;
 ALTER TABLE IF EXISTS public.adresse ALTER COLUMN id DROP DEFAULT;
 DROP TABLE IF EXISTS public.vente;
 DROP SEQUENCE IF EXISTS public.utilisateur_id_seq;
@@ -82,9 +83,11 @@ DROP TABLE IF EXISTS public."détails";
 DROP TABLE IF EXISTS public.display;
 DROP TABLE IF EXISTS public.commentaire;
 DROP TABLE IF EXISTS public.categorie;
+DROP SEQUENCE IF EXISTS public.camera_id_camera_seq;
 DROP TABLE IF EXISTS public.camera;
 DROP VIEW IF EXISTS public.articles_en_vente;
 DROP TABLE IF EXISTS public.article_en_vente;
+DROP TABLE IF EXISTS public.article_camera;
 DROP TABLE IF EXISTS public."article-stockage";
 DROP TABLE IF EXISTS public."article-son";
 DROP TABLE IF EXISTS public."article-résol-cam";
@@ -92,7 +95,6 @@ DROP TABLE IF EXISTS public."article-memoire";
 DROP TABLE IF EXISTS public."article-détails";
 DROP TABLE IF EXISTS public."article-display";
 DROP TABLE IF EXISTS public."article-det-pross";
-DROP TABLE IF EXISTS public."article-camera";
 DROP TABLE IF EXISTS public.article;
 DROP SEQUENCE IF EXISTS public.adresse_id_seq;
 DROP TABLE IF EXISTS public.adresse;
@@ -358,18 +360,6 @@ CREATE TABLE public.article (
 ALTER TABLE public.article OWNER TO postgres;
 
 --
--- Name: article-camera; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public."article-camera" (
-    reference text NOT NULL,
-    "id-camera" text NOT NULL
-);
-
-
-ALTER TABLE public."article-camera" OWNER TO postgres;
-
---
 -- Name: article-det-pross; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -454,6 +444,18 @@ CREATE TABLE public."article-stockage" (
 ALTER TABLE public."article-stockage" OWNER TO postgres;
 
 --
+-- Name: article_camera; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.article_camera (
+    reference text NOT NULL,
+    id_camera integer NOT NULL
+);
+
+
+ALTER TABLE public.article_camera OWNER TO postgres;
+
+--
 -- Name: article_en_vente; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -489,17 +491,38 @@ ALTER TABLE public.articles_en_vente OWNER TO postgres;
 --
 
 CREATE TABLE public.camera (
-    "id-camera" text NOT NULL,
-    "model objectif" text,
-    "marque objectif" text,
-    "inclus (objectif)" text,
-    "type d'appareil" text,
-    focale text,
-    "stabilisateur " text
+    id_camera integer NOT NULL,
+    model_objectif text,
+    marque_objectif text,
+    distance_focale text,
+    "stabilisateur " boolean,
+    categorie text NOT NULL
 );
 
 
 ALTER TABLE public.camera OWNER TO postgres;
+
+--
+-- Name: camera_id_camera_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.camera_id_camera_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.camera_id_camera_seq OWNER TO postgres;
+
+--
+-- Name: camera_id_camera_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.camera_id_camera_seq OWNED BY public.camera.id_camera;
+
 
 --
 -- Name: categorie; Type: TABLE; Schema: public; Owner: postgres
@@ -686,6 +709,13 @@ ALTER TABLE ONLY public.adresse ALTER COLUMN id SET DEFAULT nextval('public.adre
 
 
 --
+-- Name: camera id_camera; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.camera ALTER COLUMN id_camera SET DEFAULT nextval('public.camera_id_camera_seq'::regclass);
+
+
+--
 -- Name: utilisateur id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -697,6 +727,7 @@ ALTER TABLE ONLY public.utilisateur ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 COPY public.achat (acheteur, article) FROM stdin;
+27	banane
 \.
 
 
@@ -710,6 +741,7 @@ COPY public.adresse (id, pays, code_postal, rue, numero, complement) FROM stdin;
 1	France	93390	rue de Strasbourg	46	\N
 2	France	21000	rue des lieutenants Thomazo	109	\N
 4	France	88630	rue de la Basilique	2	\N
+37	France	83130	blabla	3	\N
 \.
 
 
@@ -728,14 +760,6 @@ goyave	4	5	830	Couleur: noyer	Focal	Aria	Aria 936
 haricot	4	6	11490	\N	Klipsch	Klipschorn	Klipschorn AK6
 icaque	4	1	90	Haut-parleurs 5.1	Logitech	Logitech Z607	Logitech Z607
 jamalac	5	4	400	24.1 mégapixels	Canon	Canon EOS	Canon EOS 2000D
-\.
-
-
---
--- Data for Name: article-camera; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public."article-camera" (reference, "id-camera") FROM stdin;
 \.
 
 
@@ -796,12 +820,20 @@ COPY public."article-stockage" (reference, "id-stockage") FROM stdin;
 
 
 --
+-- Data for Name: article_camera; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.article_camera (reference, id_camera) FROM stdin;
+jamalac	1
+\.
+
+
+--
 -- Data for Name: article_en_vente; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.article_en_vente (article) FROM stdin;
 abricot
-banane
 courgette
 datte
 érable
@@ -817,7 +849,8 @@ jamalac
 -- Data for Name: camera; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.camera ("id-camera", "model objectif", "marque objectif", "inclus (objectif)", "type d'appareil", focale, "stabilisateur ") FROM stdin;
+COPY public.camera (id_camera, model_objectif, marque_objectif, distance_focale, "stabilisateur ", categorie) FROM stdin;
+1	Zoom Lens	Canon	18-55mm	f	Reflex
 \.
 
 
@@ -912,6 +945,7 @@ COPY public.utilisateur (id, nom, prenom, mail, tel, adresse) FROM stdin;
 8	d'Arc	Catherine	catherine@vosges.fr	0329 0695 86	4
 9	de Chateaub	Royce	royce@dechateaub.co.uk	014932645	5
 5	d'Arc	Jeanne	jeannedarc@vosges.fr	0329069586	4
+27	LEFORT	Vqlentin	vqlentqin321	00000000	37
 \.
 
 
@@ -920,6 +954,7 @@ COPY public.utilisateur (id, nom, prenom, mail, tel, adresse) FROM stdin;
 --
 
 COPY public.vente (vendeur, article) FROM stdin;
+2	banane
 \.
 
 
@@ -927,14 +962,21 @@ COPY public.vente (vendeur, article) FROM stdin;
 -- Name: adresse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.adresse_id_seq', 36, true);
+SELECT pg_catalog.setval('public.adresse_id_seq', 37, true);
+
+
+--
+-- Name: camera_id_camera_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.camera_id_camera_seq', 1, true);
 
 
 --
 -- Name: utilisateur_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.utilisateur_id_seq', 26, true);
+SELECT pg_catalog.setval('public.utilisateur_id_seq', 27, true);
 
 
 --
@@ -951,14 +993,6 @@ ALTER TABLE ONLY public.achat
 
 ALTER TABLE ONLY public.adresse
     ADD CONSTRAINT adresse_pkey PRIMARY KEY (id);
-
-
---
--- Name: article-camera article-camera_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."article-camera"
-    ADD CONSTRAINT "article-camera_pkey" PRIMARY KEY (reference, "id-camera");
 
 
 --
@@ -1018,6 +1052,14 @@ ALTER TABLE ONLY public."article-stockage"
 
 
 --
+-- Name: article_camera article_camera_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.article_camera
+    ADD CONSTRAINT article_camera_pkey PRIMARY KEY (reference, id_camera);
+
+
+--
 -- Name: article_en_vente article_en_vente_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1038,7 +1080,7 @@ ALTER TABLE ONLY public.article
 --
 
 ALTER TABLE ONLY public.camera
-    ADD CONSTRAINT camera_pkey PRIMARY KEY ("id-camera");
+    ADD CONSTRAINT camera_pkey PRIMARY KEY (id_camera);
 
 
 --
@@ -1160,6 +1202,22 @@ ALTER TABLE ONLY public.achat
 
 
 --
+-- Name: article_camera article_camera_id_camera_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.article_camera
+    ADD CONSTRAINT article_camera_id_camera_fkey FOREIGN KEY (id_camera) REFERENCES public.camera(id_camera);
+
+
+--
+-- Name: article_camera article_camera_reference_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.article_camera
+    ADD CONSTRAINT article_camera_reference_fkey FOREIGN KEY (reference) REFERENCES public.article(reference);
+
+
+--
 -- Name: article article_categorie_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1197,14 +1255,6 @@ ALTER TABLE ONLY public.commentaire
 
 ALTER TABLE ONLY public.commentaire
     ADD CONSTRAINT commentaire_commentateur_fkey FOREIGN KEY (commentateur) REFERENCES public.utilisateur(id);
-
-
---
--- Name: article-camera id-camera; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."article-camera"
-    ADD CONSTRAINT "id-camera" FOREIGN KEY ("id-camera") REFERENCES public.camera("id-camera");
 
 
 --
@@ -1317,14 +1367,6 @@ ALTER TABLE ONLY public."article-det-pross"
 
 ALTER TABLE ONLY public."article-son"
     ADD CONSTRAINT reference FOREIGN KEY (reference) REFERENCES public.article(reference);
-
-
---
--- Name: article-camera refrence; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public."article-camera"
-    ADD CONSTRAINT refrence FOREIGN KEY (reference) REFERENCES public.article(reference);
 
 
 --
