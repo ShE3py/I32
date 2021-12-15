@@ -38,9 +38,12 @@ ALTER TABLE IF EXISTS ONLY public."article-camera" DROP CONSTRAINT IF EXISTS "id
 ALTER TABLE IF EXISTS ONLY public.commentaire DROP CONSTRAINT IF EXISTS commentaire_commentateur_fkey;
 ALTER TABLE IF EXISTS ONLY public.commentaire DROP CONSTRAINT IF EXISTS commentaire_article_fkey;
 ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_vendeur_fkey;
+ALTER TABLE IF EXISTS ONLY public.article_en_vente DROP CONSTRAINT IF EXISTS article_en_vente_article_fkey;
 ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_categorie_fkey;
 ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_article_fkey;
 ALTER TABLE IF EXISTS ONLY public.achat DROP CONSTRAINT IF EXISTS achat_acheteur_fkey;
+DROP TRIGGER IF EXISTS sync_articles_en_vente_trigger ON public.article;
+DROP TRIGGER IF EXISTS sync_achat_vente_trigger ON public.achat;
 ALTER TABLE IF EXISTS ONLY public.vente DROP CONSTRAINT IF EXISTS vente_pkey;
 ALTER TABLE IF EXISTS ONLY public.utilisateur DROP CONSTRAINT IF EXISTS utilisateur_pkey;
 ALTER TABLE IF EXISTS ONLY public.utilisateur DROP CONSTRAINT IF EXISTS utilisateur_mail_key;
@@ -54,6 +57,7 @@ ALTER TABLE IF EXISTS ONLY public.display DROP CONSTRAINT IF EXISTS display_pkey
 ALTER TABLE IF EXISTS ONLY public.categorie DROP CONSTRAINT IF EXISTS categorie_pkey;
 ALTER TABLE IF EXISTS ONLY public.camera DROP CONSTRAINT IF EXISTS camera_pkey;
 ALTER TABLE IF EXISTS ONLY public.article DROP CONSTRAINT IF EXISTS article_pkey;
+ALTER TABLE IF EXISTS ONLY public.article_en_vente DROP CONSTRAINT IF EXISTS article_en_vente_pkey;
 ALTER TABLE IF EXISTS ONLY public."article-stockage" DROP CONSTRAINT IF EXISTS "article-stockage_pkey";
 ALTER TABLE IF EXISTS ONLY public."article-son" DROP CONSTRAINT IF EXISTS "article-son_pkey";
 ALTER TABLE IF EXISTS ONLY public."article-résol-cam" DROP CONSTRAINT IF EXISTS "article-résol-cam_pkey";
@@ -79,6 +83,7 @@ DROP TABLE IF EXISTS public.display;
 DROP TABLE IF EXISTS public.commentaire;
 DROP TABLE IF EXISTS public.categorie;
 DROP TABLE IF EXISTS public.camera;
+DROP TABLE IF EXISTS public.article_en_vente;
 DROP TABLE IF EXISTS public."article-stockage";
 DROP TABLE IF EXISTS public."article-son";
 DROP TABLE IF EXISTS public."article-résol-cam";
@@ -91,6 +96,8 @@ DROP TABLE IF EXISTS public.article;
 DROP SEQUENCE IF EXISTS public.adresse_id_seq;
 DROP TABLE IF EXISTS public.adresse;
 DROP TABLE IF EXISTS public.achat;
+DROP FUNCTION IF EXISTS public.sync_articles_en_vente();
+DROP FUNCTION IF EXISTS public.sync_achat_vente();
 DROP FUNCTION IF EXISTS public.recherche(search_input text, categorie_filter integer, price_min real, price_max real, ordering integer);
 DROP DOMAIN IF EXISTS public.pays;
 DROP EXTENSION IF EXISTS adminpack;
@@ -164,6 +171,54 @@ $$;
 
 
 ALTER FUNCTION public.recherche(search_input text, categorie_filter integer, price_min real, price_max real, ordering integer) OWNER TO postgres;
+
+--
+-- Name: sync_achat_vente(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.sync_achat_vente() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO vente (
+            SELECT article.vendeur, article.reference FROM article
+            WHERE article.reference=NEW.article
+        );
+
+    ELSEIF TG_OP = 'DELETE' THEN
+        DELETE FROM vente
+        WHERE vente.article=OLD.article;
+
+    ELSE
+        RAISE EXCEPTION 'entered unreachable code: TG_OP = %', TG_OP;
+    
+    END IF;
+
+    RETURN NULL;
+END;
+
+$$;
+
+
+ALTER FUNCTION public.sync_achat_vente() OWNER TO postgres;
+
+--
+-- Name: sync_articles_en_vente(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.sync_articles_en_vente() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+        INSERT INTO article_en_vente VALUES (NEW.reference);
+
+        RETURN NULL;
+    END;
+$$;
+
+
+ALTER FUNCTION public.sync_articles_en_vente() OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -333,6 +388,17 @@ CREATE TABLE public."article-stockage" (
 
 
 ALTER TABLE public."article-stockage" OWNER TO postgres;
+
+--
+-- Name: article_en_vente; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.article_en_vente (
+    article text NOT NULL
+);
+
+
+ALTER TABLE public.article_en_vente OWNER TO postgres;
 
 --
 -- Name: camera; Type: TABLE; Schema: public; Owner: postgres
@@ -646,6 +712,23 @@ COPY public."article-stockage" (reference, "id-stockage") FROM stdin;
 
 
 --
+-- Data for Name: article_en_vente; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.article_en_vente (article) FROM stdin;
+abricot
+banane
+datte
+érable
+figue
+goyave
+haricot
+icaque
+jamalac
+\.
+
+
+--
 -- Data for Name: camera; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -774,7 +857,7 @@ SELECT pg_catalog.setval('public.utilisateur_id_seq', 25, true);
 --
 
 ALTER TABLE ONLY public.achat
-    ADD CONSTRAINT achat_pkey PRIMARY KEY (acheteur, article);
+    ADD CONSTRAINT achat_pkey PRIMARY KEY (article);
 
 
 --
@@ -847,6 +930,14 @@ ALTER TABLE ONLY public."article-son"
 
 ALTER TABLE ONLY public."article-stockage"
     ADD CONSTRAINT "article-stockage_pkey" PRIMARY KEY (reference, "id-stockage");
+
+
+--
+-- Name: article_en_vente article_en_vente_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.article_en_vente
+    ADD CONSTRAINT article_en_vente_pkey PRIMARY KEY (article);
 
 
 --
@@ -950,7 +1041,21 @@ ALTER TABLE ONLY public.utilisateur
 --
 
 ALTER TABLE ONLY public.vente
-    ADD CONSTRAINT vente_pkey PRIMARY KEY (vendeur, article);
+    ADD CONSTRAINT vente_pkey PRIMARY KEY (article);
+
+
+--
+-- Name: achat sync_achat_vente_trigger; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER sync_achat_vente_trigger AFTER INSERT OR DELETE ON public.achat FOR EACH ROW EXECUTE FUNCTION public.sync_achat_vente();
+
+
+--
+-- Name: article sync_articles_en_vente_trigger; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER sync_articles_en_vente_trigger AFTER INSERT ON public.article FOR EACH ROW EXECUTE FUNCTION public.sync_articles_en_vente();
 
 
 --
@@ -975,6 +1080,14 @@ ALTER TABLE ONLY public.achat
 
 ALTER TABLE ONLY public.article
     ADD CONSTRAINT article_categorie_fkey FOREIGN KEY (categorie) REFERENCES public.categorie(id);
+
+
+--
+-- Name: article_en_vente article_en_vente_article_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.article_en_vente
+    ADD CONSTRAINT article_en_vente_article_fkey FOREIGN KEY (article) REFERENCES public.article(reference) ON DELETE CASCADE;
 
 
 --

@@ -94,9 +94,23 @@
 				<div class="col-md-3">
 				  <div class="box-info-product">
 					<p class="price2" id="__python_generate_0"></p>
-							<button type="submit" name="Submit" class="exclusive">
+							<button id="buy" type="button" class="exclusive" onclick="doBuy()">
 							   <span>Acheter</span>
 							</button>
+
+					  		<script>
+								function doBuy() {
+									const qs = new URLSearchParams(window.location.search)
+
+									const ref = qs.get("ref")
+									if(ref !== null && ref.length !== 0) {
+										window.location.href = "/do_buy.html?ref=" + ref
+									}
+									else {
+										document.getElementById("buy").getElementsByTagName("span")[0].innerText = "ERROR: entered unreachable state"
+									}
+								}
+							</script>
 				   </div>
 			   </div>
 			</div>

@@ -16,6 +16,7 @@ from login import do_login
 from profile import show_profile, read_userid_cookie
 from register import do_register, do_user_update
 from search import do_search
+from buy_item import do_buy_item
 
 # Webserver constants
 PORT = 80
@@ -69,6 +70,9 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 
             elif self.path.startswith("/item.html"):
                 self.do_dynamic("/item.html", show_item)
+
+            elif self.path.startswith("/do_buy.html"):
+                self.do_dynamic("/do_buy.html", do_buy_item)
 
             else:
                 if self.path.startswith("/add_item.html"):
