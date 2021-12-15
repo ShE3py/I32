@@ -76,13 +76,13 @@ class WebpageSupplier(SimpleHTTPRequestHandler):
 
                 super().do_GET()
 
-        except ConnectionAbortedError:
+        except (ConnectionAbortedError, ConnectionResetError):
             pass
 
         except:
             try:
                 self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, None)
-            except ConnectionAbortedError:
+            except (ConnectionAbortedError, ConnectionResetError):
                 pass
 
             logging.exception("webserver:do_dynamic")  # print strack trace
