@@ -127,7 +127,7 @@ CREATE VIEW articles_en_vente AS
 CREATE FUNCTION sync_articles_en_vente()
     RETURNS TRIGGER
     LANGUAGE plpgsql
-AS $$
+    AS $$
 BEGIN
     INSERT INTO article_en_vente VALUES (NEW.reference);
 
@@ -166,7 +166,7 @@ CREATE TABLE vente (
 CREATE FUNCTION sync_achat_vente()
     RETURNS TRIGGER
     LANGUAGE plpgsql
-AS $$
+    AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         INSERT INTO vente (
@@ -199,7 +199,7 @@ CREATE TRIGGER sync_achat_vente_trigger
 CREATE FUNCTION recherche(search_input TEXT DEFAULT NULL, categorie_filter INTEGER DEFAULT NULL, price_min REAL DEFAULT 0, price_max REAL DEFAULT 'Infinity', ordering INTEGER DEFAULT 0)
     RETURNS TABLE(reference TEXT, modele TEXT, prix REAL, nom_vendeur TEXT, prenom_vendeur TEXT)
     LANGUAGE plpgsql
-AS $$
+    AS $$
 BEGIN
     -- résultat de la recherche désordonnée
     CREATE TEMPORARY TABLE unordered(reference text, modele text, prix real, nom_vendeur text, prenom_vendeur text);
@@ -240,7 +240,7 @@ BEGIN
     END IF;
 
     DROP TABLE unordered;
-END
+END;
 $$;
 
 
@@ -250,7 +250,7 @@ $$;
 CREATE FUNCTION historique_achat(user_id INTEGER)
     RETURNS TABLE(reference TEXT, modele TEXT, prix REAL, nom_vendeur TEXT, prenom_vendeur TEXT)
     LANGUAGE plpgsql
-AS $$
+    AS $$
 BEGIN
     RETURN QUERY
         SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, utilisateur
@@ -269,7 +269,7 @@ $$;
 CREATE FUNCTION historique_vente(user_id INTEGER)
     RETURNS TABLE(reference TEXT, modele TEXT, prix REAL, nom_acheteur TEXT, prenom_acheteur TEXT)
     LANGUAGE plpgsql
-AS $$
+    AS $$
 BEGIN
     RETURN QUERY
         SELECT article.reference, article.modele, article.prix, utilisateur.nom, utilisateur.prenom FROM article, achat, utilisateur
@@ -295,4 +295,4 @@ BEGIN
         SELECT article.reference, article.modele, article.prix FROM articles_en_vente article
         WHERE article.vendeur = user_id;
 END;
-    $$;
+$$;
