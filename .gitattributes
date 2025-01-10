@@ -1,2 +1,11 @@
 database.dump linguist-generated eol=lf
-README.html linguist-generated eol=lf
+
+# Only `mystyle.css` and `styles.css` are not vendored
+/src/website/css/bootstrap.css linguist-vendored
+/src/website/css/etalage.css linguist-vendored
+/src/website/css/fwslider.css linguist-vendored
+/src/website/css/jquery.fancybox.css linguist-vendored
+/src/website/css/magnific-popup.css linguist-vendored
+/src/website/css/style.css linguist-vendored
+
+/src/website/js/*.js linguist-vendored
